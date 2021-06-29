@@ -1,0 +1,781 @@
+<h1 class="mat-title">nowa przesyłka krajowa</h1>
+<mat-spinner *ngIf="isLoading"></mat-spinner>
+<form
+  id="newConsignment"
+  [formGroup]="form"
+  (submit)="onCreate()"
+  *ngIf="!isLoading"
+>
+  <mat-form-field appearance="fill" class="short">
+    <mat-label>płatnik</mat-label>
+    <mat-select formControlName="payerType">
+      <!-- to jako enum, do klasy -->
+      <mat-option value="SHIPPER">nadawca</mat-option>
+      <mat-option value="RECEIVER">odbiorca</mat-option>
+      <mat-option value="USER">trzecia strona?</mat-option>
+    </mat-select>
+    <mat-error
+      *ngIf="form.get('payerType').invalid && form.get('payerType').touched"
+      >pole wymaga wyboru</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>data nadania</mat-label>
+    <!-- do poprawy format daty z MM/DD/RRRR na DD/MM/RRRR! -->
+    <input
+      matInput
+      [matDatepicker]="picker"
+      formControlName="shipmentDate"
+      [min]="minDate"
+      [max]="maxDate"
+      [matDatepickerFilter]="weekendFilter"
+      (focus)="sdState = true"
+      (focusout)="sdState = false"
+      class="number"
+    />
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+    <mat-error
+      *ngIf="
+        form.get('shipmentDate').invalid && form.get('shipmentDate').touched
+      "
+      >wymagana data od {{ this.formatDateForUser(minDate) }} do
+      {{ this.formatDateForUser(maxDate) }}, format: M/D/RRRR</mat-error
+    >
+  </mat-form-field>
+
+  <h3 class="mat-h3">nadawca:</h3>
+  <mat-form-field appearance="fill" class="long">
+    <mat-label>nazwa</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="shipperName"
+      #shipperName
+      maxlength="60"
+      (keyup)="shipperName.value = trimDoubleSpace(shipperName.value)"
+      (focus)="snState = true"
+      (focusout)="snState = false"
+    />
+    <mat-hint *ngIf="snState" align="end"
+      >{{ shipperName.value?.length || 0 }}/60 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('shipperName').invalid &&
+        form.get('shipperName').touched &&
+        !snState
+      "
+      >min. 5, max. 60 znaków</mat-error
+    >
+  </mat-form-field>
+  <br />
+  <mat-form-field appearance="fill" class="medium">
+    <mat-label>ulica</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="shipperStreet"
+      #shipperStreet
+      maxlength="35"
+      (keyup)="shipperStreet.value = trimDoubleSpace(shipperStreet.value)"
+      (focus)="ssState = true"
+      (focusout)="ssState = false"
+    />
+    <mat-hint *ngIf="ssState" align="end"
+      >{{ shipperStreet.value?.length || 0 }}/35 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('shipperStreet').invalid &&
+        form.get('shipperStreet').touched &&
+        !ssState
+      "
+      >min. 3, max. 35 znaków</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="veryShort">
+    <mat-label>dom</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="shipperHouseNumber"
+      #shipperHouseNumber
+      maxlength="10"
+      (keyup)="
+        shipperHouseNumber.value = trimDoubleSpace(shipperHouseNumber.value)
+      "
+      (focus)="shState = true"
+      (focusout)="shState = false"
+    />
+    <mat-hint *ngIf="shState" align="end"
+      >{{ shipperHouseNumber.value?.length || 0 }}/10 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('shipperHouseNumber').invalid &&
+        form.get('shipperHouseNumber').touched &&
+        !ssState
+      "
+      >min. 1, max. 10 znaków</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="veryShort">
+    <mat-label>lokal</mat-label>
+    <input
+      matInput
+      type="number"
+      min="1"
+      formControlName="shipperApartmentNumber"
+      #shipperApartmentNumber
+      (keyup)="
+        shipperApartmentNumber.value = maxTenDigit(shipperApartmentNumber.value)
+      "
+      (focus)="saState = true"
+      (focusout)="saState = false"
+    />
+    <mat-hint *ngIf="saState" align="end"
+      >{{ shipperApartmentNumber.value?.length || 0 }}/10 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('shipperApartmentNumber').invalid &&
+        form.get('shipperApartmentNumber').touched &&
+        !saState
+      "
+      >max. 10 znaków</mat-error
+    >
+  </mat-form-field>
+  <br />
+  <mat-form-field appearance="fill" class="short">
+    <mat-label>kod pocztowy</mat-label>
+    <input
+      matInput
+      type="tel"
+      formControlName="shipperPostalCode"
+      #shipperPostalCode
+      maxlength="6"
+      (keydown)="
+        shipperPostalCode.value = formatPostalCode(shipperPostalCode.value)
+      "
+      (keyup)="
+        shipperPostalCode.value = formatPostalCode(shipperPostalCode.value)
+      "
+      (focus)="spcState = true"
+      (focusout)="spcState = false"
+    />
+    <mat-hint *ngIf="spcState" align="end">format: 12-345</mat-hint>
+    <mat-error
+      *ngIf="
+        form.get('shipperPostalCode').invalid &&
+        form.get('shipperPostalCode').touched &&
+        !spcState
+      "
+      >format: 12-345</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="medium">
+    <mat-label>miejscowość</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="shipperCity"
+      #shipperCity
+      maxlength="17"
+      (keyup)="shipperCity.value = trimDoubleSpaceAndNumber(shipperCity.value)"
+      (focus)="scState = true"
+      (focusout)="scState = false"
+    />
+    <mat-hint *ngIf="scState" align="end"
+      >{{ shipperCity.value?.length || 0 }}/17 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('shipperCity').invalid &&
+        form.get('shipperCity').touched &&
+        !scState
+      "
+      >min. 3, max. 17 znaków</mat-error
+    >
+  </mat-form-field>
+  <br />
+  <mat-form-field appearance="fill" class="medium">
+    <mat-label>osoba kontaktowa</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="shipperContactPerson"
+      #shipperContactPerson
+      maxlength="60"
+      (keyup)="
+        shipperContactPerson.value = trimDoubleSpace(shipperContactPerson.value)
+      "
+      (focus)="scpState = true"
+      (focusout)="scpState = false"
+    />
+    <mat-hint *ngIf="scpState" align="end"
+      >{{ shipperContactPerson.value?.length || 0 }}/60 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('shipperContactPerson').invalid &&
+        form.get('shipperContactPerson').touched &&
+        !scpState
+      "
+      >max. 60 znaków</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>telefon</mat-label>
+    <input
+      matInput
+      type="tel"
+      formControlName="shipperContactPhone"
+      #shipperContactPhone
+      maxlength="20"
+      (keyup)="
+        shipperContactPhone.value = trimDoubleSpaceAndNotNumber(
+          shipperContactPhone.value
+        )
+      "
+      (focus)="scphState = true"
+      (focusout)="scphState = false"
+    />
+    <mat-hint *ngIf="scphState" align="end"
+      >{{ shipperContactPhone.value?.length || 0 }}/20 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('shipperContactPhone').invalid &&
+        form.get('shipperContactPhone').touched &&
+        !scphState
+      "
+      >max. 20 znaków</mat-error
+    >
+  </mat-form-field>
+  <br />
+  <mat-form-field appearance="fill" class="long">
+    <mat-label>email</mat-label>
+    <input
+      matInput
+      type="email"
+      formControlName="shipperContactEmail"
+      #shipperContactEmail
+      maxlength="60"
+      (focus)="sceState = true"
+      (focusout)="sceState = false"
+    />
+    <mat-hint *ngIf="sceState" align="end"
+      >{{ shipperContactEmail.value?.length || 0 }}/60 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('shipperContactEmail').invalid &&
+        form.get('shipperContactEmail').touched &&
+        !sceState
+      "
+      >format: email, max. 60 znaków</mat-error
+    >
+  </mat-form-field>
+
+  <h3 class="mat-h3">odbiorca:</h3>
+  <mat-form-field appearance="fill" class="short">
+    <mat-label>kraj</mat-label>
+    <mat-select
+      formControlName="country"
+      #country
+      (focus)="cState = true"
+      (focusout)="cState = false"
+    >
+      <mat-option value="PL">Polska</mat-option>
+    </mat-select>
+    <mat-error
+      *ngIf="
+        form.get('country').invalid && form.get('country').touched && !cState
+      "
+      >pole wymaga wyboru</mat-error
+    >
+  </mat-form-field>
+  <br />
+  <mat-form-field appearance="fill" class="long">
+    <mat-label>nazwa</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="receiverName"
+      #receiverName
+      maxlength="60"
+      (keyup)="receiverName.value = trimDoubleSpace(receiverName.value)"
+      (focus)="rnState = true"
+      (focusout)="rnState = false"
+    />
+    <mat-hint *ngIf="rnState" align="end"
+      >{{ receiverName.value?.length || 0 }}/60 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('receiverName').invalid &&
+        form.get('receiverName').touched &&
+        !rnState
+      "
+      >min. 5, max. 60 znaków</mat-error
+    >
+  </mat-form-field>
+  <br />
+  <mat-form-field appearance="fill" class="medium">
+    <mat-label>ulica</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="receiverStreet"
+      #receiverStreet
+      maxlength="35"
+      (keyup)="receiverStreet.value = trimDoubleSpace(receiverStreet.value)"
+      (focus)="rsState = true"
+      (focusout)="rsState = false"
+    />
+    <mat-hint *ngIf="rsState" align="end"
+      >{{ receiverStreet.value?.length || 0 }}/35 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('receiverStreet').invalid &&
+        form.get('receiverStreet').touched &&
+        !rsState
+      "
+      >min. 3, max. 35 znakóww</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="veryShort">
+    <mat-label>dom</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="receiverHouseNumber"
+      #receiverHouseNumber
+      maxlength="10"
+      (keyup)="
+        receiverHouseNumber.value = trimDoubleSpace(receiverHouseNumber.value)
+      "
+      (focus)="rhState = true"
+      (focusout)="rhState = false"
+    />
+    <mat-hint *ngIf="rhState" align="end"
+      >{{ receiverHouseNumber.value?.length || 0 }}/10 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('receiverHouseNumber').invalid &&
+        form.get('receiverHouseNumber').touched &&
+        !rhState
+      "
+      >min. 1, max. 10 znaków</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="veryShort">
+    <mat-label>lokal</mat-label>
+    <input
+      matInput
+      type="number"
+      min="1"
+      formControlName="receiverApartmentNumber"
+      #receiverApartmentNumber
+      (keyup)="
+        receiverApartmentNumber.value = maxTenDigit(
+          receiverApartmentNumber.value
+        )
+      "
+      (focus)="raState = true"
+      (focusout)="raState = false"
+    />
+    <mat-hint *ngIf="raState" align="end"
+      >{{ receiverApartmentNumber.value?.length || 0 }}/10 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('receiverApartmentNumber').invalid &&
+        form.get('receiverApartmentNumber').touched &&
+        !raState
+      "
+      >max. 10 znaków</mat-error
+    >
+  </mat-form-field>
+  <br />
+  <mat-form-field appearance="fill" class="short">
+    <mat-label>kod pocztowy</mat-label>
+    <input
+      matInput
+      type="tel"
+      formControlName="receiverPostalCode"
+      #receiverPostalCode
+      maxlength="6"
+      (keydown)="
+        receiverPostalCode.value = formatPostalCode(receiverPostalCode.value)
+      "
+      (keyup)="
+        receiverPostalCode.value = formatPostalCode(receiverPostalCode.value)
+      "
+      (focus)="rpcState = true"
+      (focusout)="rpcState = false"
+    />
+    <mat-hint *ngIf="rpcState" align="end">format: 12-345</mat-hint>
+    <mat-error
+      *ngIf="
+        form.get('receiverPostalCode').invalid &&
+        form.get('receiverPostalCode').touched &&
+        !rpcState
+      "
+      >format: 12-345</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="medium">
+    <mat-label>miejscowość</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="receiverCity"
+      #receiverCity
+      maxlength="17"
+      (keyup)="
+        receiverCity.value = trimDoubleSpaceAndNumber(receiverCity.value)
+      "
+      (focus)="rcState = true"
+      (focusout)="rcState = false"
+    />
+    <mat-hint *ngIf="rcState" align="end"
+      >{{ receiverCity.value?.length || 0 }}/17 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('receiverCity').invalid &&
+        form.get('receiverCity').touched &&
+        !rcState
+      "
+      >min. 3, max. 17 znaków</mat-error
+    >
+  </mat-form-field>
+  <br />
+  <mat-form-field appearance="fill" class="medium">
+    <mat-label>osoba kontaktowa</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="receiverContactPerson"
+      #receiverContactPerson
+      maxlength="60"
+      (keyup)="
+        receiverContactPerson.value = trimDoubleSpace(
+          receiverContactPerson.value
+        )
+      "
+      (focus)="rcpState = true"
+      (focusout)="rcpState = false"
+    />
+    <mat-hint *ngIf="rcpState" align="end"
+      >{{ receiverContactPerson.value?.length || 0 }}/60 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('receiverContactPerson').invalid &&
+        form.get('receiverContactPerson').touched &&
+        !rcpState
+      "
+      >max. 60 znaków</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>telefon</mat-label>
+    <input
+      matInput
+      type="tel"
+      formControlName="receiverContactPhone"
+      #receiverContactPhone
+      maxlength="20"
+      (keyup)="
+        receiverContactPhone.value = trimDoubleSpaceAndNotNumber(
+          receiverContactPhone.value
+        )
+      "
+      (focus)="rcphState = true"
+      (focusout)="rcphState = false"
+    />
+    <mat-hint *ngIf="rcphState" align="end"
+      >{{ receiverContactPhone.value?.length || 0 }}/20 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('receiverContactPhone').invalid &&
+        form.get('receiverContactPhone').touched &&
+        !rcphState
+      "
+      >max. 20 znaków</mat-error
+    >
+  </mat-form-field>
+  <br />
+  <mat-form-field appearance="fill" class="long">
+    <mat-label>email</mat-label>
+    <input
+      matInput
+      type="email"
+      formControlName="receiverContactEmail"
+      #receiverContactEmail
+      maxlength="60"
+      (focus)="rceState = true"
+      (focusout)="rceState = false"
+    />
+    <mat-hint *ngIf="rceState" align="end"
+      >{{ receiverContactEmail.value?.length || 0 }}/60 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('receiverContactEmail').invalid &&
+        form.get('receiverContactEmail').touched &&
+        !rceState
+      "
+      >format: email, max. 60 znaków</mat-error
+    >
+  </mat-form-field>
+
+  <h3 class="mat-h3">paczka:</h3>
+  <mat-form-field appearance="fill" class="short">
+    <mat-label>rodzaj</mat-label>
+    <mat-select
+      formControlName="type"
+      #type
+      (focus)="tState = true"
+      (focusout)="tState = false"
+    >
+      <mat-option value="PACKAGE">paczka</mat-option>
+      <mat-option value="PALLETTE">paleta</mat-option>
+      <mat-option value="ENVELOPE">koperta</mat-option>
+    </mat-select>
+    <mat-error
+      *ngIf="form.get('type').invalid && form.get('type').touched && !tState"
+      >pole wymaga wyboru</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="short">
+    <mat-label>waga</mat-label>
+    <input
+      matInput
+      type="number"
+      formControlName="weight"
+      #weight
+      (keyup)="weight.value = trimComma(weight.value)"
+      (focus)="weState = true"
+      (focusout)="weState = false"
+      class="right-align number"
+    />
+    <span *ngIf="weState || form.get('weight').value != null" matSuffix
+      >kg</span
+    >
+    <mat-hint *ngIf="weState" align="end">max 31kg</mat-hint>
+    <mat-error *ngIf="form.get('weight').invalid && form.get('weight').touched"
+      >max. 31kg</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="short">
+    <mat-label>długość</mat-label>
+    <input
+      matInput
+      type="number"
+      formControlName="width"
+      #width
+      (keyup)="width.value = trimComma(width.value)"
+      (focus)="wiState = true"
+      (focusout)="wiState = false"
+      class="right-align number"
+    />
+    <span *ngIf="wiState || form.get('width').value != null" matSuffix>cm</span>
+    <mat-hint *ngIf="wiState" align="end">max {{ wMax }}cm</mat-hint>
+    <mat-error *ngIf="form.get('width').invalid && form.get('width').touched"
+      >max. {{ wMax }}cm</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="short">
+    <mat-label>szerokość</mat-label>
+    <input
+      matInput
+      type="number"
+      formControlName="length"
+      #length
+      (keyup)="length.value = trimComma(length.value)"
+      (focus)="lState = true"
+      (focusout)="lState = false"
+      class="right-align number"
+    />
+    <span *ngIf="lState || form.get('length').value != null" matSuffix>cm</span>
+    <mat-hint *ngIf="lState" align="end">max {{ lMax }}cm</mat-hint>
+    <mat-error *ngIf="form.get('length').invalid && form.get('length').touched"
+      >max. {{ lMax }}cm</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="short">
+    <mat-label>wysokość</mat-label>
+    <input
+      matInput
+      type="number"
+      formControlName="height"
+      #height
+      (keyup)="height.value = trimComma(height.value)"
+      (focus)="hState = true"
+      (focusout)="hState = false"
+      class="right-align number"
+    />
+    <span *ngIf="hState || form.get('height').value != null" matSuffix>cm</span>
+    <mat-hint *ngIf="hState" align="end">max {{ hMax }}cm</mat-hint>
+    <mat-error *ngIf="form.get('height').invalid && form.get('height').touched"
+      >max. {{ hMax }}cm</mat-error
+    >
+  </mat-form-field>
+  <br />
+  <mat-form-field appearance="fill" class="short">
+    <mat-label>liczba</mat-label>
+    <input
+      matInput
+      type="number"
+      formControlName="quantity"
+      #quantity
+      (keyup)="quantity.value = trimComma(quantity.value)"
+      (focus)="qState = true"
+      (focusout)="qState = false"
+      class="right-align number"
+    />
+    <span *ngIf="qState || form.get('quantity').value != null" matSuffix
+      >szt.</span
+    >
+    <mat-hint *ngIf="qState" align="end">min 1 szt.</mat-hint>
+    <mat-error
+      *ngIf="
+        form.get('quantity').invalid && form.get('quantity').touched && !qState
+      "
+      >min. 1</mat-error
+    >
+    <mat-checkbox formControlName="nonStandard" labelPosition="before"
+      >nonStandard</mat-checkbox
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="medium">
+    <mat-label>zawartość</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="content"
+      #content
+      maxlength="30"
+      (keyup)="content.value = trimDoubleSpace(content.value)"
+      (focus)="cnState = true"
+      (focusout)="cnState = false"
+    />
+    <mat-hint *ngIf="cnState" align="end"
+      >{{ content.value?.length || 0 }}/30 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('content').invalid && form.get('content').touched && !cnState
+      "
+      >max. 30 znaków</mat-error
+    >
+  </mat-form-field>
+  <br />
+  <mat-form-field appearance="fill" class="long">
+    <mat-label>uwagi</mat-label>
+    <textarea
+      matInput
+      type="text"
+      formControlName="comment"
+      #comment
+      maxlength="100"
+      (keyup)="content.value = trimDoubleSpace(content.value)"
+      (focus)="cmState = true"
+      (focusout)="cmState = false"
+    >
+    </textarea>
+    <mat-hint *ngIf="cmState" align="end"
+      >{{ comment.value?.length || 0 }}/100 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form.get('comment').invalid && form.get('comment').touched && !cmState
+      "
+      >max. 100 znaków</mat-error
+    >
+  </mat-form-field>
+
+  <h3 class="mat-h3">usługi dodatkowe:</h3>
+  <mat-checkbox formControlName="CoD" labelPosition="before">
+    za pobraniem
+  </mat-checkbox>
+  <mat-form-field appearance="fill" class="short">
+    <mat-label>kwota</mat-label>
+    <!-- format lokalny w Polsce odcina części dziesiętne przecinkiem a nie kropką, a tysiące - spacją -->
+    <input
+      matInput
+      type="number"
+      formControlName="CoDValue"
+      #CoDValue
+      (focus)="cvState = true"
+      (focusout)="cvState = false"
+      class="right-align number"
+    />
+    <span *ngIf="cvState || form.get('CoDValue').value != null" matSuffix
+      >zł</span
+    >
+    <mat-hint *ngIf="cvState" align="end">max 11000.00zł</mat-hint>
+    <mat-error
+      *ngIf="
+        form.get('CoDValue').invalid && form.get('CoDValue').touched && !cvState
+      "
+      >format 123.45zł</mat-error
+    >
+  </mat-form-field>
+  <mat-checkbox formControlName="insurance" labelPosition="before">
+    ubezpieczenie przesyłki
+  </mat-checkbox>
+  <mat-form-field appearance="fill" class="short">
+    <mat-label>wartość</mat-label>
+    <input
+      matInput
+      type="number"
+      formControlName="insuranceValue"
+      #insuranceValue
+      (focus)="ivState = true"
+      (focusout)="ivState = false"
+      class="right-align number"
+    />
+    <span *ngIf="ivState || form.get('insuranceValue').value != null" matSuffix
+      >zł</span
+    >
+    <mat-hint *ngIf="ivState" align="end">format: 1234.56zł</mat-hint>
+    <mat-error
+      *ngIf="
+        form.get('insuranceValue').invalid &&
+        form.get('insuranceValue').touched &&
+        !ivState
+      "
+      >format: 123.45zł, nie mniej niż pobranie</mat-error
+    >
+  </mat-form-field>
+
+  <div>
+    <button
+      mat-raised-button
+      color="accent"
+      type="submit"
+      [disabled]="!form.valid"
+    >
+      utwórz przesyłkę
+    </button>
+    <!-- nałożyć style żeby wyświetlać chips'a obok guzików -->
+    <mat-chip-list>
+      <mat-chip *ngIf="size" color="primary" selected>
+        {{ size }} paczka DHL
+      </mat-chip>
+    </mat-chip-list>
+  </div>
+  <div>
+    <button mat-raised-button color="accent" disabled>
+      zamów kuriera
+    </button>
+  </div>
+</form>

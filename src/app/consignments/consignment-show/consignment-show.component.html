@@ -1,0 +1,173 @@
+<h1 class="mat-title">
+  szczegóły przesyłki
+  <span *ngIf="!isLoading">nr {{ consignment?.consignmentId }}</span>
+</h1>
+<mat-spinner *ngIf="isLoading"></mat-spinner>
+<div *ngIf="!isLoading">
+  <div class="details-container">
+    <p>
+      <mat-label>właściciel: {{ consignment?.login }}</mat-label>
+      <br />
+      <mat-label>data: {{ consignment?.shipmentDate }}</mat-label>
+    </p>
+    <br />
+    <h3 class="mat-h3">nadawca:</h3>
+    <p>
+      <mat-label>{{ consignment?.shipper.name }}</mat-label
+      ><br />
+      <mat-label>{{ consignment?.shipper.postalCode }}</mat-label
+      >&nbsp;<mat-label>{{ consignment?.shipper.city }}</mat-label
+      >&nbsp;<mat-label>{{ consignment?.shipper.street }}</mat-label
+      >&nbsp;<mat-label>{{ consignment?.shipper.houseNumber }}</mat-label
+      >&nbsp;<mat-label>{{ consignment?.shipper.apartmentNumber }}</mat-label>
+      <ng-container
+        *ngIf="
+          consignment?.shipper.contactPerson &&
+          consignment?.shipper.name.toLowerCase() !==
+            consignment?.shipper.contactPerson.toLowerCase()
+        "
+      >
+        <br />
+        <mat-label>{{ consignment?.shipper.contactPerson }}</mat-label>
+      </ng-container>
+      <ng-container *ngIf="consignment?.shipper.contactPhone">
+        <br /><mat-label>
+          tel.: {{ consignment.shipper.contactPhone }}</mat-label
+        > </ng-container
+      ><br />
+      <mat-label *ngIf="consignment?.shipper.contactEmail"
+        >email: {{ consignment.shipper.contactEmail }}</mat-label
+      >
+    </p>
+    <br />
+    <h3 class="mat-h3">odbiorca:</h3>
+    <p>
+      <mat-label>{{ consignment?.receiver.name }}</mat-label
+      ><br />
+      <mat-label>{{ consignment?.receiver.postalCode }}</mat-label
+      >&nbsp;<mat-label>{{ consignment?.receiver.city }}</mat-label
+      >&nbsp;<mat-label>{{ consignment?.receiver.street }}</mat-label
+      >&nbsp;<mat-label>{{ consignment?.receiver.houseNumber }}</mat-label
+      >&nbsp;<mat-label>{{ consignment?.receiver.apartmentNumber }}</mat-label>
+      <ng-container
+        *ngIf="
+          consignment?.receiver.contactPerson &&
+          consignment?.receiver.name.toLowerCase() !==
+            consignment?.receiver.contactPerson.toLowerCase()
+        "
+      >
+        <br />
+        <mat-label>{{ consignment?.receiver.contactPerson }}</mat-label>
+      </ng-container>
+      <ng-container *ngIf="consignment?.receiver.contactPhone">
+        <br />
+        <mat-label>tel.: {{ consignment?.receiver.contactPhone }}</mat-label>
+      </ng-container>
+      <br />
+      <mat-label *ngIf="consignment?.receiver.contactEmail"
+        >email: {{ consignment?.receiver.contactEmail }}</mat-label
+      >
+    </p>
+    <br />
+    <h3 class="mat-h3">przesyłka:</h3>
+    <p>
+      <mat-label>{{ consignment?.piece.type }}</mat-label
+      ><br />
+      <ng-container *ngIf="consignment?.piece.type !== 'ENVELOPE'">
+        <mat-label>masa: {{ consignment?.piece.weight }}kg</mat-label><br />
+        <mat-label
+          >wymiary: {{ consignment?.piece.width }} x
+          {{ consignment?.piece.length }} x
+          {{ consignment?.piece.height }} [cm]</mat-label
+        ><br />
+        <ng-container *ngIf="consignment?.piece.nonStandard">
+          <mat-label>* paczka niestandardowa</mat-label><br />
+        </ng-container>
+      </ng-container>
+      <mat-label>zawartość: {{ consignment?.content }}</mat-label>
+      <ng-container *ngIf="consignment?.comment">
+        <br />
+        <mat-label>uwagi: {{ consignment.comment }}</mat-label>
+      </ng-container>
+    </p>
+    <ng-container
+      *ngIf="consignment?.service.CoD || consignment?.service.insurance"
+    >
+      <br />
+      <h3 class="mat-h3">opcje:</h3>
+      <p>
+        <ng-container *ngIf="consignment.service.CoD">
+          <mat-label
+            >kwota pobrania: {{ consignment.service.CoDValue }}zł</mat-label
+          ><br />
+        </ng-container>
+        <mat-label *ngIf="consignment.service.insurance"
+          >kwota ubezpieczenia:
+          {{ consignment.service.insuranceValue }}zł</mat-label
+        >
+      </p>
+    </ng-container>
+  </div>
+  <div class="stepper-container">
+    <h3 class="mat-h3">status:</h3>
+    <mat-vertical-stepper #stepper linear>
+      <ng-template matStepperIcon="edit">
+        <mat-icon>done</mat-icon>
+      </ng-template>
+      <ng-container
+        *ngFor="
+          let trackAndTraceInfo of consignment?.trackAndTraceInfo
+            .slice()
+            .reverse()
+        "
+      >
+        <mat-step>
+          <ng-template matStepperIcon="number" matStepLabel
+            >{{ trackAndTraceInfo.status }}
+          </ng-template>
+          <p>{{ trackAndTraceInfo.description }}</p>
+          <p>{{ trackAndTraceInfo.timestamp }}</p>
+        </mat-step>
+      </ng-container>
+    </mat-vertical-stepper>
+  </div>
+  <div class="action-container">
+    <button
+      mat-raised-button
+      [disabled]="!consignment.labelPath"
+      color="accent"
+      (click)="open(consignment.labelPath)"
+    >
+      pokaż etykietę
+    </button>
+    <button
+      mat-raised-button
+      [disabled]="!consignment.letterPath"
+      color="accent"
+      (click)="open(consignment.letterPath)"
+    >
+      pokaż list przewozowy
+    </button>
+    <button mat-raised-button color="warn" (click)="onDelete()">
+      - usuń przesyłkę
+    </button>
+
+    <div>
+      <button
+        mat-raised-button
+        color="accent"
+        routerLink="/consignments/create"
+      >
+        + utwórz nową
+      </button>
+      <button mat-raised-button color="accent">
+        + utwórz podobną
+      </button>
+    </div>
+    <div>
+      <button mat-raised-button color="accent" disabled>
+        zamów kuriera
+      </button>
+    </div>
+  </div>
+</div>

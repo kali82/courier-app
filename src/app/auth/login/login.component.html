@@ -1,0 +1,31 @@
+<mat-spinner *ngIf="isLoading"></mat-spinner>
+<form (submit)="onLogin(loginForm)" #loginForm="ngForm" *ngIf="!isLoading">
+  <mat-form-field>
+    <input
+      matInput
+      name="login"
+      type="login"
+      ngModel
+      placeholder="login"
+      #loginInput="ngModel"
+      required
+    />
+    <mat-error *ngIf="loginInput.invalid">Treść walidacji</mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <input
+      matInput
+      name="password"
+      type="password"
+      ngModel
+      placeholder="hasło"
+      #passwordInput="ngModel"
+      required
+    />
+    <mat-error *ngIf="passwordInput.invalid">Podaj prawidłowe hasło.</mat-error>
+  </mat-form-field>
+  <button mat-raised-button color="accent" type="submit" *ngIf="!isLoading">
+    zaloguj
+  </button>
+</form>
+<p *ngIf="isUnauthorized">Podano niewłaściwy login lub hasło.</p>

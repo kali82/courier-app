@@ -1,0 +1,75 @@
+mat-spinner {
+  margin: auto;
+}
+
+mat-form-field {
+  margin: 0 0.2em 1em 0.5em;
+}
+
+mat-form-field.veryShort {
+  width: 5em;
+}
+
+mat-form-field.short {
+  width: 8em;
+}
+
+mat-form-field.medium {
+  width: 20em;
+}
+
+mat-form-field.long {
+  /* width: calc(100% - $leftMargin); */
+  width: 95%;
+  max-width: 50em;
+}
+
+/* dlaczego to gówno nie działa?! */
+.mat-form-field-appearance-fill .mat-form-field-flex {
+  background-color: red !important;
+}
+/* dlaczego to gówno nie działa?! */
+#newConsignment mat-form-field .max-form-field-wrapper .mat-form-field-flex {
+  padding: 0.5em 0.5em 0 0.5em !important;
+}
+/* dlaczego to gówno nie działa?! */
+#newConsignment .mat-form-field-appearance-fill .mat-form-field-infix {
+  padding: 0.25em 0 0.25em 0 !important;
+}
+/* dlaczego to gówno nie działa?! */
+#newConsignment mat-form-field .mat-form-field-subscript-wrapper {
+  padding: 0 !important;
+}
+
+mat-hint,
+mat-error {
+  margin-top: -2px;
+  font-size: 1.2em;
+}
+
+.right-align {
+  text-align: right;
+}
+
+span[matSuffix] {
+  margin-left: 0.3em;
+}
+
+input.number::-webkit-outer-spin-button,
+input.number::-webkit-inner-spin-button,
+input.number::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+input.number {
+  -moz-appearance: textfield;
+}
+
+/* te style w ogóle nie działają a powinny żeby ten chips wyświetlał się obok przycisków */
+.mat-chip-list-wrapper {
+  display: inline !important;
+}
+
+button {
+  margin: 2em 1.5em 0 0;
+}

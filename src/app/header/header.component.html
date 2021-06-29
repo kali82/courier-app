@@ -1,0 +1,62 @@
+<mat-toolbar color="primary">
+  <ng-container *ngIf="isAuthenticated">
+    <button
+      mat-raised-button
+      routerLink="/dashboard"
+      routerLinkActive="mat-accent"
+    >
+      <i class="material-icons">
+        home
+      </i>
+      {{ login }} daszbord
+    </button>
+    <button
+      mat-raised-button
+      routerLink="/consignments"
+      routerLinkActive="mat-accent"
+    >
+      <i class="material-icons">
+        view_list
+      </i>
+      przesyłki
+    </button>
+    <button
+      *ngIf="isAdmin"
+      mat-raised-button
+      routerLink="/auth/create"
+      routerLinkActive="mat-accent"
+    >
+      <i class="material-icons">
+        person_add
+      </i>
+      nowy user
+    </button>
+    <span class="spacer"></span>
+    <button mat-raised-button (click)="onLogout()">
+      <i class="material-icons">
+        exit_to_app
+      </i>
+      wyloguj
+    </button>
+    <button mat-raised-button disabled>
+      <i class="material-icons">
+        brightness_medium
+      </i>
+      <i class="material-icons">
+        invert_colors
+      </i>
+      darek mode
+    </button>
+  </ng-container>
+  <button
+    *ngIf="!isAuthenticated"
+    mat-raised-button
+    routerLink="/auth/login"
+    routerLinkActive="mat-accent"
+  >
+    <i class="material-icons">
+      account_circle
+    </i>
+    logowanie
+  </button>
+</mat-toolbar>
