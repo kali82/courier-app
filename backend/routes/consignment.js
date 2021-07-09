@@ -430,23 +430,23 @@ router.get('/:consignmentId', checkAuth, (req, res) => {
                   .getTrackAndTraceInfo(consignmentId)
                   .then(result => {
                     try{
-                    if (result[0].getTrackAndTraceInfoResult.events.item) {
-                     
-                        result[0].getTrackAndTraceInfoResult.events.item.forEach(
-                          element => {
-                            trackAndTraceInfo.push(element);
-                          }
-                        );
+                      if (result[0].getTrackAndTraceInfoResult.events.item) {
                       
-                      
-                    } else {
-                      trackAndTraceInfo.push({
-                        status: 'EDWP',
-                        description:
-                          'DHL otrzymał dane elektroniczne przesyłki.',
-                        timestamp: '',
-                      });
-                    }
+                          result[0].getTrackAndTraceInfoResult.events.item.forEach(
+                            element => {
+                              trackAndTraceInfo.push(element);
+                            }
+                          );
+                        
+                        
+                      } else {
+                        trackAndTraceInfo.push({
+                          status: 'EDWP',
+                          description:
+                            'DHL otrzymał dane elektroniczne przesyłki.',
+                          timestamp: '',
+                        });
+                      }
                   } catch(err) {
                     console.log(err);
                   }
