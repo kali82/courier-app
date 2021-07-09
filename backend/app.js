@@ -14,8 +14,10 @@ app.use(express.static('files'));
 
 app.use(bodyParser.json());
 
-// const corsOptions = { origin: process.env.originUrl };
-const corsOptions = { origin: 'http://localhost:4000' };
+const corsOptions = { 
+  // origin: process.env.ORIGIN_URL 
+  origin: 'http://localhost:4200'
+};
 app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
@@ -29,7 +31,7 @@ app.use('/api/consignments', consignmentRoutes);
 mongoose.Promise = global.Promise;
 mongoose
   .connect(
-    process.env.mongo, {
+    process.env.MONGO, {
     useNewUrlParser: true,
     useFindAndModify: false,
     useCreateIndex: true,

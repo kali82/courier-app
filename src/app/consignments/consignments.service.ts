@@ -18,19 +18,20 @@ export class ConsignmentsService {
     private router: Router
   ) {}
 
-  createConsignment(consignment: Consignment): Promise<any> {
-    return this.http
-      .post<{ message: string; consignmentId: number }>(
-        BACKEND_URL + 'create',
-        consignment
-      )
-      .toPromise()
-      .then(response => {
-        return response;
-      })
-      .catch(error => {
-        return error;
-      });
+  async createConsignment(consignment: Consignment): Promise<any> {
+    try {
+      const response = await this.http
+        .post<{ message: string; consignmentId: number; }>(
+          BACKEND_URL + 'create',
+          consignment
+        )
+        .toPromise();
+        console.log(response);
+      return response;
+    } catch (error) {
+      console.log(consignment + " dupa jasiu");
+      return error;
+    }
   }
 
   listConsignments(): Promise<any> {
@@ -50,7 +51,7 @@ export class ConsignmentsService {
           return response;
         },
         error => {
-          return error;
+          return "dupa "+ error;
         }
       );
   }

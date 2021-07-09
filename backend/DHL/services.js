@@ -27,7 +27,6 @@ DHLNodeAPI.prototype.createClient = function createClient(url, options) {
     .then(nodeSOAPWrapper.liftAll)
     .then(client => {
       self.client = client;
-
       return self;
     });
 };

@@ -11,6 +11,10 @@ import { Service } from '../model/service.model';
 import { ShipperAddress } from '../model/shipper-address.model';
 import { ReceiverAddress } from '../model/receiver-address.model';
 import { Piece } from '../model/piece.model';
+import { environment } from 'src/environments/environment';
+
+const SERVER_URL = environment.serverUrl;
+
 
 @Component({
   templateUrl: './consignment-create.component.html',
@@ -636,16 +640,35 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
       shipmentDateTime: shipmentDateTime,
     };
     this.consignmentsService.createConsignment(consignment).then(response => {
+      //this.router.navigate(['dashboard']);
+      // this.router.navigate(['consignments']);
       this.isLoading = false;
       if (response.status === 400) {
+        console.log(consignment);
+        console.log("cos poszlo nie tak");
         this.toastService.showToast('Coś poszło nie tak   ; /');
       } else {
         this.form.reset();
-        const consignmentId = response.consignmentId;
+        let consignmentId = response.consignmentId;
+        console.log(response);
         this.toastService.showToast(response.message);
-        this.router.navigate(['consignments', consignmentId]);
+        this.consignmentsService.getConsignment(consignmentId).then(response => {
+          console.log(SERVER_URL + response.labelPath);
+          
+        })
+        let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,
+width=0,height=0,left=-1000,top=-1000`;
+setTimeout(() => window.open('http://google.com'), 1000);
+        window.open("https://www.google.com", '_blank', params);
+        //this.router.navigate(['consignments', consignmentId]);
+        //window.location.reload();
+
       }
-    });
+      window.open("https://www.google.com", '_blank').focus();
+    })
+  }
+  open(filePath) {
+    window.open(filePath, '_blank');
   }
   ngOnDestroy() {
     this.authStatusSub.unsubscribe();

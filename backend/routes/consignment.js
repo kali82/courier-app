@@ -15,6 +15,9 @@ const ConsignmentExcerpt = require('../models/consignmentExcerpt');
 
 // lista przesyłek
 router.post('/', checkAuth, (req, res) => {
+  new DHLNodeAPI().createClient(
+    process.env.dhlUrl,
+   '').done(api => {console.log(api.getVersion())});
   const userId = req.body.userId;
   let consignments = [];
 
@@ -34,11 +37,14 @@ router.post('/', checkAuth, (req, res) => {
             new Structures.ItemToLabelData(dbConsignment.id)
           );
         });
-
+        console.log('itemsToLabelData');
+          console.log(itemsToLabelData)
         return itemsToLabelData;
       },
       error => {
         console.log(error);
+        console.log('sdadasdasdasdasdasdasdasdas')
+
       }
     )
     .then(itemsToLabelData => {
@@ -57,7 +63,7 @@ router.post('/', checkAuth, (req, res) => {
                   consignments[i].setShipperName = shipment.shipper.name;
                   consignments[i].setReceiverName = shipment.receiver.name;
                   // wciąż zakładamy, że w przesyłce jest tylko jedna paczka/paleta/koperta
-                  // jeśli tego nie używamy to do wyjebania
+                  // jak sie zmieni wymaganie to do wyjebania
                   // const item = shipment.pieceList.item[0];
                   // consignments[i].setType = item.type;
                   // if (item.type != 'ENVELOPE') {
@@ -72,7 +78,9 @@ router.post('/', checkAuth, (req, res) => {
                 resolve(api);
               })
               .catch(error => {
+                console.log("123123123123123");
                 console.log(error);
+                
                 reject(error);
               });
           });
@@ -86,8 +94,14 @@ router.post('/', checkAuth, (req, res) => {
                   .getTrackAndTraceInfo(consignments[i].consignmentId)
                   .then(result => {
                     let trackAndTraceInfo = [];
-                    const items =
+                    let items;
+                    try{
+                      items =
                       result[0].getTrackAndTraceInfoResult.events.item;
+                    } catch(err){
+
+                    }
+                    
                     if (items) {
                       items.forEach(element => {
                         // jeśli na liście chcemy wyświetlić tylko ostatni (chronologicznie) status to nei pchajmy w odpowiedź wszystkeigo
@@ -106,6 +120,7 @@ router.post('/', checkAuth, (req, res) => {
                     resolve();
                   })
                   .catch(error => {
+                    console.log(error)
                     reject(error);
                   });
               })
@@ -126,11 +141,19 @@ router.post('/', checkAuth, (req, res) => {
           logger.error(req.originalUrl.concat(' error'));
 
           res.status(400).json({
-            message: 'Nie udało się pobrać przesyłek.',
+            message: 'Nie udało się pobrać przesyłek.2',
             error: error,
           });
         });
-    });
+    })
+    .catch(error => {
+      logger.error(req.originalUrl.concat(' error'));
+
+      res.status(400).json({
+        message: 'Nie udało się pobrać przesyłek.',
+        error: error,
+      });
+    });;
 });
 
 //usuwanie przesyłek
@@ -138,8 +161,8 @@ router.patch('/', checkAuth, (req, res) => {
   let selectedConsignmentsId = [];
   let selectedConsignments = req.body.selectedConsignments;
   let userId = req.body.userId;
-
-  new DHLNodeAPI().createClient(process.env.dhlUrl, '').done(api => {
+  new DHLNodeAPI().createClient(
+     process.env.dhlUrl,'').done(api => {
     User.findById(userId, (err, user) => {
       if (err) {
         res.status(400).json({
@@ -202,10 +225,10 @@ router.post('/create', checkAuth, (req, res) => {
   const receiver = req.body.receiver;
   const piece = req.body.piece;
   const payerType = req.body.payerType;
-  let paymentMethod = '';
-  payerType === 'RECEIVER'
-    ? (paymentMethod = 'CASH')
-    : (paymentMethod = 'BANK_TRANSFER');
+  let paymentMethod = payerType === 'RECEIVER'? 'CASH': 'BANK_TRANSFER';
+  // payerType === 'RECEIVER'
+  //   ? (paymentMethod = 'CASH')
+  //   : (paymentMethod = 'BANK_TRANSFER');
   const serviceDefinition = req.body.service;
   serviceDefinition.product = 'AH';
   if (serviceDefinition.CoD === true) {
@@ -218,7 +241,7 @@ router.post('/create', checkAuth, (req, res) => {
   const shipmentDateTime = req.body.shipmentDateTime;
 
   new DHLNodeAPI()
-    .createClient(process.env.dhlUrl, process.env.dhlPass)
+    .createClient(process.env.dhlUrl, '')
     .done(api => {
       api.setAuthData(process.env.dhlUser, process.env.dhlPass);
       api
@@ -312,6 +335,7 @@ router.post('/create', checkAuth, (req, res) => {
         ])
         .done(
           result => {
+            console.log("created DONEEE "+ result);
             consignmentId = result[0].createShipmentsResult.item[0].shipmentId;
             User.findById(userId, (err, doc) => {
               if (err) {
@@ -405,12 +429,16 @@ router.get('/:consignmentId', checkAuth, (req, res) => {
                 api
                   .getTrackAndTraceInfo(consignmentId)
                   .then(result => {
+                    try{
                     if (result[0].getTrackAndTraceInfoResult.events.item) {
-                      result[0].getTrackAndTraceInfoResult.events.item.forEach(
-                        element => {
-                          trackAndTraceInfo.push(element);
-                        }
-                      );
+                     
+                        result[0].getTrackAndTraceInfoResult.events.item.forEach(
+                          element => {
+                            trackAndTraceInfo.push(element);
+                          }
+                        );
+                      
+                      
                     } else {
                       trackAndTraceInfo.push({
                         status: 'EDWP',
@@ -419,6 +447,9 @@ router.get('/:consignmentId', checkAuth, (req, res) => {
                         timestamp: '',
                       });
                     }
+                  } catch(err) {
+                    console.log(err);
+                  }
                   })
                   .then(() => {
                     resolve(trackAndTraceInfo);
@@ -561,9 +592,9 @@ router.get('/:consignmentId', checkAuth, (req, res) => {
 function connectDHL() {
   return new Promise((resolve, reject) => {
     new DHLNodeAPI().createClient(process.env.dhlUrl, '').done(
-      api => {
+      api => {  
+        console.log("before set auth data");
         api.setAuthData(process.env.dhlUser, process.env.dhlPass);
-
         resolve(api);
       },
       error => {

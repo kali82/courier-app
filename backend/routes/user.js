@@ -8,7 +8,8 @@ const logger = require('../logger');
 const User = require('../models/user');
 const RefreshToken = require('../models/refreshToken');
 
-const secret = process.env.tokenSecret;
+const secret = '1234';
+//const secret = process.env.tokenSecret;
 const accessTokenExpiresIn = 3600;
 
 router.post('/create', (req, res, next) => {
@@ -59,7 +60,7 @@ router.post('/login', (req, res, next) => {
         logger.error(req.originalUrl.concat(' response'));
 
         return res.status(500).json({
-          message: err,
+          message: "dupa "+ error,
         });
       }
     )
