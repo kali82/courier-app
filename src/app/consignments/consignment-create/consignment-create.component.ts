@@ -12,6 +12,7 @@ import { ShipperAddress } from '../model/shipper-address.model';
 import { ReceiverAddress } from '../model/receiver-address.model';
 import { Piece } from '../model/piece.model';
 import { environment } from 'src/environments/environment';
+import { MatSnackBar } from "@angular/material/snack-bar";
 
 const SERVER_URL = environment.serverUrl;
 
@@ -93,8 +94,10 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
     public consignmentsService: ConsignmentsService,
     private authService: AuthService,
     private router: Router,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private snackBar: MatSnackBar
   ) {}
+
 
   ngOnInit() {
     this.createForm();
@@ -106,6 +109,15 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
       .subscribe(authStatus => {
         this.isLoading = false;
       });
+  }
+
+  showSnackbar(content, action, duration) {
+    return this.snackBar.open(content, action, {
+      duration: duration,
+      verticalPosition: "top", // Allowed values are  'top' | 'bottom'
+      horizontalPosition: "center" // Allowed values are 'start' | 'center' | 'end' | 'left' | 'right'
+    });
+  
   }
 
   trimDoubleSpace(string) {
@@ -646,25 +658,25 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
       if (response.status === 400) {
         console.log(consignment);
         console.log("cos poszlo nie tak");
-        this.toastService.showToast('Coś poszło nie tak   ; /');
+        //this.toastService.showToast('Coś poszło nie tak   ; /');
       } else {
         this.form.reset();
         let consignmentId = response.consignmentId;
         console.log(response);
-        this.toastService.showToast(response.message);
+        //this.toastService.showToast(response.message);
         this.consignmentsService.getConsignment(consignmentId).then(response => {
           console.log(SERVER_URL + response.labelPath);
+          let snackBar = this.showSnackbar("Otwórz list przewozowy", 'Otwórz', '50000');
+          snackBar.onAction().subscribe(()=>{
+            window.open(SERVER_URL + response.letterPath, '_blank');
+          })
           
         })
-        let params = `scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,
-width=0,height=0,left=-1000,top=-1000`;
-setTimeout(() => window.open('http://google.com'), 1000);
-        window.open("https://www.google.com", '_blank', params);
+       
         //this.router.navigate(['consignments', consignmentId]);
         //window.location.reload();
 
       }
-      window.open("https://www.google.com", '_blank').focus();
     })
   }
   open(filePath) {

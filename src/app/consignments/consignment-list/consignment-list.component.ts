@@ -24,6 +24,7 @@ const SERVER_URL = environment.serverUrl;
 export class ConsignmentListComponent implements OnInit, OnDestroy {
   private authStatusSub: Subscription;
   isAuthenticated = false;
+  isAdmin = false;
   isLoading: boolean;
   pageEvent;
   displayedColumns: string[] = [
@@ -51,6 +52,7 @@ export class ConsignmentListComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isLoading = true;
+    this.isAdmin = this.authService.getIsAdmin();
     this.isAuthenticated = this.authService.getIsAuth();
     this.authStatusSub = this.authService
       .getAuthStatusListener()
