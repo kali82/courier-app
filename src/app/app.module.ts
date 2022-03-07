@@ -10,14 +10,20 @@ import { AuthInterceptor } from './auth/auth-interceptor';
 import { ErrorInterceptor } from './shared/error-interceptor';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { HeaderComponent } from './header/header.component';
+import { SettingsComponent } from './settings/settings.component';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
 @NgModule({
-  declarations: [AppComponent, DashboardComponent, HeaderComponent],
+  declarations: [AppComponent, DashboardComponent, HeaderComponent, SettingsComponent],
   imports: [
     BrowserModule,
     HttpClientModule,
     AppRoutingModule,
     AngularMaterialModule,
     BrowserAnimationsModule,
+    CommonModule,
+    ReactiveFormsModule,
+    AngularMaterialModule,
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },

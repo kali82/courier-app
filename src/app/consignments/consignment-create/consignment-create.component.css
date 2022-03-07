@@ -73,3 +73,6 @@ input.number {
 button {
   margin: 2em 1.5em 0 0;
 }
+.homeForm{
+  display: flex;
+}

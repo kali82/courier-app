@@ -1,0 +1,252 @@
+<form
+  id="newConsignment"
+  [formGroup]="form2"
+  (submit)="onCreate()"
+  *ngIf="!isLoading && showForm"
+>
+<div class="homeForm">
+  <div class="shipperForm">
+  <h3 class="mat-h3">Dane {{ user }}:</h3>
+  <mat-form-field appearance="fill" class="long">
+    <mat-label>nazwa</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="shipperName"
+      #shipperName
+      maxlength="60"
+      (keyup)="shipperName.value = trimDoubleSpace(shipperName.value)"
+      (focus)="snState = true"
+      (focusout)="snState = false"
+    />
+    <mat-hint *ngIf="snState" align="end"
+      >{{ shipperName.value?.length || 0 }}/60 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form2.get('shipperName').invalid &&
+        form2.get('shipperName').touched &&
+        !snState
+      "
+      >min. 5, max. 60 znaków</mat-error
+    >
+  </mat-form-field>
+  <br />
+  <mat-form-field appearance="fill" class="medium">
+    <mat-label>ulica</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="shipperStreet"
+      #shipperStreet
+      maxlength="35"
+      (keyup)="shipperStreet.value = trimDoubleSpace(shipperStreet.value)"
+      (focus)="ssState = true"
+      (focusout)="ssState = false"
+    />
+    <mat-hint *ngIf="ssState" align="end"
+      >{{ shipperStreet.value?.length || 0 }}/35 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form2.get('shipperStreet').invalid &&
+        form2.get('shipperStreet').touched &&
+        !ssState
+      "
+      >min. 3, max. 35 znaków</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="veryShort">
+    <mat-label>dom</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="shipperHouseNumber"
+      #shipperHouseNumber
+      maxlength="10"
+      (keyup)="
+        shipperHouseNumber.value = trimDoubleSpace(shipperHouseNumber.value)
+      "
+      (focus)="shState = true"
+      (focusout)="shState = false"
+    />
+    <mat-hint *ngIf="shState" align="end"
+      >{{ shipperHouseNumber.value?.length || 0 }}/10 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form2.get('shipperHouseNumber').invalid &&
+        form2.get('shipperHouseNumber').touched &&
+        !ssState
+      "
+      >min. 1, max. 10 znaków</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="veryShort">
+    <mat-label>lokal</mat-label>
+    <input
+      matInput
+      type="number"
+      min="1"
+      formControlName="shipperApartmentNumber"
+      #shipperApartmentNumber
+      (keyup)="
+        shipperApartmentNumber.value = maxTenDigit(shipperApartmentNumber.value)
+      "
+      (focus)="saState = true"
+      (focusout)="saState = false"
+    />
+    <mat-hint *ngIf="saState" align="end"
+      >{{ shipperApartmentNumber.value?.length || 0 }}/10 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form2.get('shipperApartmentNumber').invalid &&
+        form2.get('shipperApartmentNumber').touched &&
+        !saState
+      "
+      >max. 10 znaków</mat-error
+    >
+  </mat-form-field>
+  <br />
+  <mat-form-field appearance="fill" class="short">
+    <mat-label>kod pocztowy</mat-label>
+    <input
+      matInput
+      type="tel"
+      formControlName="shipperPostalCode"
+      #shipperPostalCode
+      maxlength="6"
+      (keydown)="
+        shipperPostalCode.value = formatPostalCode(shipperPostalCode.value)
+      "
+      (keyup)="
+        shipperPostalCode.value = formatPostalCode(shipperPostalCode.value)
+      "
+      (focus)="spcState = true"
+      (focusout)="spcState = false"
+    />
+    <mat-hint *ngIf="spcState" align="end">format: 12-345</mat-hint>
+    <mat-error
+      *ngIf="
+        form2.get('shipperPostalCode').invalid &&
+        form2.get('shipperPostalCode').touched &&
+        !spcState
+      "
+      >format: 12-345</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill" class="medium">
+    <mat-label>miejscowość</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="shipperCity"
+      #shipperCity
+      maxlength="17"
+      (keyup)="shipperCity.value = trimDoubleSpaceAndNumber(shipperCity.value)"
+      (focus)="scState = true"
+      (focusout)="scState = false"
+    />
+    <mat-hint *ngIf="scState" align="end"
+      >{{ shipperCity.value?.length || 0 }}/17 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form2.get('shipperCity').invalid &&
+        form2.get('shipperCity').touched &&
+        !scState
+      "
+      >min. 3, max. 17 znaków</mat-error
+    >
+  </mat-form-field>
+  <br />
+  <mat-form-field appearance="fill" class="medium">
+    <mat-label>osoba kontaktowa</mat-label>
+    <input
+      matInput
+      type="text"
+      formControlName="shipperContactPerson"
+      #shipperContactPerson
+      maxlength="60"
+      (keyup)="
+        shipperContactPerson.value = trimDoubleSpace(shipperContactPerson.value)
+      "
+      (focus)="scpState = true"
+      (focusout)="scpState = false"
+    />
+    <mat-hint *ngIf="scpState" align="end"
+      >{{ shipperContactPerson.value?.length || 0 }}/60 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form2.get('shipperContactPerson').invalid &&
+        form2.get('shipperContactPerson').touched &&
+        !scpState
+      "
+      >max. 60 znaków</mat-error
+    >
+  </mat-form-field>
+  <mat-form-field appearance="fill">
+    <mat-label>telefon</mat-label>
+    <input
+      matInput
+      type="tel"
+      formControlName="shipperContactPhone"
+      #shipperContactPhone
+      maxlength="20"
+      (keyup)="
+        shipperContactPhone.value = trimDoubleSpaceAndNotNumber(
+          shipperContactPhone.value
+        )
+      "
+      (focus)="scphState = true"
+      (focusout)="scphState = false"
+    />
+    <mat-hint *ngIf="scphState" align="end"
+      >{{ shipperContactPhone.value?.length || 0 }}/20 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form2.get('shipperContactPhone').invalid &&
+        form2.get('shipperContactPhone').touched &&
+        !scphState
+      "
+      >max. 20 znaków</mat-error
+    >
+  </mat-form-field>
+  <br />
+  <mat-form-field appearance="fill" class="long">
+    <mat-label>email</mat-label>
+    <input
+      matInput
+      type="email"
+      formControlName="shipperContactEmail"
+      #shipperContactEmail
+      maxlength="60"
+      (focus)="sceState = true"
+      (focusout)="sceState = false"
+    />
+    <mat-hint *ngIf="sceState" align="end"
+      >{{ shipperContactEmail.value?.length || 0 }}/60 znaków</mat-hint
+    >
+    <mat-error
+      *ngIf="
+        form2.get('shipperContactEmail').invalid &&
+        form2.get('shipperContactEmail').touched &&
+        !sceState
+      "
+      >format: email, max. 60 znaków</mat-error
+    >
+  </mat-form-field>
+</div>
+</div>
+<button
+      mat-raised-button
+      color="accent"
+      type="submit"
+      (click)="updatePersonalData()"
+    >
+      Zapisz Dane
+    </button></form>
+

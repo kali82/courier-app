@@ -20,6 +20,15 @@
       </i>
       przesyłki
     </button>
+    <button 
+      mat-raised-button 
+      routerLink="/createConsignments"
+      routerLinkActive="mat-accent">
+      <i class="material-icons">
+        add_circle
+      </i>
+      utwórz przesyłkę
+    </button>
     <button
       *ngIf="isAdmin"
       mat-raised-button
@@ -32,13 +41,23 @@
       nowy user
     </button>
     <span class="spacer"></span>
+    <button
+      mat-raised-button
+      routerLink="/settings"
+      routerLinkActive="mat-accent"
+    >
+      <i class="material-icons">
+        settings
+      </i>
+      ustawienia
+  </button>
     <button mat-raised-button (click)="onLogout()">
       <i class="material-icons">
         exit_to_app
       </i>
       wyloguj
     </button>
-    <button mat-raised-button disabled>
+    <!-- <button mat-raised-button disabled>
       <i class="material-icons">
         brightness_medium
       </i>
@@ -46,7 +65,7 @@
         invert_colors
       </i>
       darek mode
-    </button>
+    </button> -->
   </ng-container>
   <button
     *ngIf="!isAuthenticated"

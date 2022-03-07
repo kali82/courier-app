@@ -53,6 +53,7 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
   shState = false;
   snState = false;
   sdState = false;
+  tt = false;
 
   isLoading = false;
   form: FormGroup;
@@ -89,6 +90,7 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
   SMALL = 36;
   HEAVY = 10.1;
   LIGHT = 1.1;
+  showForm;
 
   constructor(
     public consignmentsService: ConsignmentsService,
@@ -100,15 +102,21 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
-    this.createForm();
-    this.setPieceValidators();
-    this.setServiceValidators();
-
-    this.authStatusSub = this.authService
-      .getAuthStatusListener()
-      .subscribe(authStatus => {
-        this.isLoading = false;
-      });
+    let login = this.authService.getLogin();
+    this.authService.getUser(login).then(data => {
+      this.showForm = true;
+      //this.toastService.showToast(data.message)
+      this.createForm(data);
+      this.setPieceValidators();
+      this.setServiceValidators();
+  
+      this.authStatusSub = this.authService
+        .getAuthStatusListener()
+        .subscribe(authStatus => {
+          this.isLoading = false;
+        });
+    });
+  
   }
 
   showSnackbar(content, action, duration) {
@@ -155,54 +163,54 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
     return apartment;
   }
 
-  createForm() {
+  createForm(data) {
     this.form = new FormGroup({
       payerType: new FormControl('SHIPPER', {
         validators: [Validators.required],
       }),
-      shipmentDate: new FormControl(null, {
+      shipmentDate: new FormControl(this.minDate, {
         validators: [Validators.required],
       }),
-      shipperName: new FormControl('aaaaa', {
+      shipperName: new FormControl(data.user.firstName, {
         validators: [
           Validators.required,
           Validators.minLength(5),
           Validators.maxLength(60),
         ],
       }),
-      shipperPostalCode: new FormControl(null, {
+      shipperPostalCode: new FormControl('66-001', {
         validators: [
           Validators.required,
           Validators.pattern('[0-9]{2}-[0-9]{3}'),
         ],
       }),
-      shipperCity: new FormControl('aaa', {
+      shipperCity: new FormControl(data.user.city, {
         validators: [
           Validators.required,
           Validators.minLength(3),
           Validators.maxLength(17),
         ],
       }),
-      shipperStreet: new FormControl('aaa', {
+      shipperStreet: new FormControl(data.user.street, {
         validators: [
           Validators.required,
           Validators.minLength(3),
           Validators.maxLength(35),
         ],
       }),
-      shipperHouseNumber: new FormControl('aaa', {
+      shipperHouseNumber: new FormControl(data.user.house, {
         validators: [Validators.required, Validators.maxLength(10)],
       }),
-      shipperApartmentNumber: new FormControl(null, {
+      shipperApartmentNumber: new FormControl(data.user.apartment, {
         validators: [Validators.maxLength(10)],
       }),
-      shipperContactPerson: new FormControl(null, {
+      shipperContactPerson: new FormControl(data.user.contactPerson, {
         validators: [Validators.maxLength(60)],
       }),
-      shipperContactPhone: new FormControl(null, {
+      shipperContactPhone: new FormControl(data.user.phone, {
         validators: [Validators.maxLength(20)],
       }),
-      shipperContactEmail: new FormControl(null, {
+      shipperContactEmail: new FormControl(data.user.email, {
         validators: [Validators.email, Validators.maxLength(60)],
       }),
       country: new FormControl('PL', {
@@ -212,7 +220,7 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
           Validators.maxLength(2),
         ],
       }),
-      receiverName: new FormControl('bbbbb', {
+      receiverName: new FormControl(null, {
         validators: [
           Validators.required,
           Validators.minLength(5),
@@ -225,21 +233,21 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
           Validators.pattern('[0-9]{2}-[0-9]{3}'),
         ],
       }),
-      receiverCity: new FormControl('bbb', {
+      receiverCity: new FormControl(null, {
         validators: [
           Validators.required,
           Validators.minLength(3),
           Validators.maxLength(17),
         ],
       }),
-      receiverStreet: new FormControl('bbb', {
+      receiverStreet: new FormControl(null, {
         validators: [
           Validators.required,
           Validators.minLength(3),
           Validators.maxLength(35),
         ],
       }),
-      receiverHouseNumber: new FormControl('bbb', {
+      receiverHouseNumber: new FormControl(null, {
         validators: [Validators.required, Validators.maxLength(10)],
       }),
       receiverApartmentNumber: new FormControl(null, {
@@ -382,7 +390,20 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
     });
 
     this.lengthControl.valueChanges.subscribe((length: number) => {
-      if (length > this.SHORT) {
+      this.weightControl = this.form.get('weight');
+      this.widthControl = this.form.get('width');
+      this.lengthControl = this.form.get('length');
+      this.heightControl = this.form.get('height');
+      let dupa = length*this.height*this.width;
+      if(dupa> 300) {
+        this.form.get('length').setErrors({ 'invalid': true });
+        //this.form.get('length').setErrors({ serverError: { message: 'Show server error :)' } });
+        console.log(this.form.get('length').invalid);
+        this.tt = true;
+        console.log('tt ' + this.tt);
+        //this.updateSummedDimensionsValidators()
+        console.log(dupa)
+      }else if (length > this.SHORT) {
         if (
           this.widthControl.value <= this.SHORT &&
           this.heightControl.value <= this.SHORT
@@ -415,7 +436,7 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
           this.hMax = this.LONG;
         }
       }
-      this.updateDimensionsValidators();
+      //this.updateDimensionsValidators();
     });
 
     this.heightControl.valueChanges.subscribe((height: number) => {
@@ -462,7 +483,21 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
     this.updateDimensionValidators(this.heightControl, this.hMax);
     this.determineSize();
   }
+  updateSummedDimensionsValidators() {
+    console.log()
+    this.updateDimensionValidators(this.widthControl, this.wMax);
+    this.updateDimensionValidators(this.lengthControl, this.lMax);
+    this.updateDimensionValidators(this.heightControl, this.hMax);
+    this.determineSize();
+  }
 
+  updateSummedDimensionValidators(dimensionControl, maxValue) {
+    dimensionControl.setValidators([
+      Validators.required,
+      Validators.max(1),
+    ]);
+    dimensionControl.updateValueAndValidity({ emitEvent: false });
+  }
   updateDimensionValidators(dimensionControl, maxValue) {
     dimensionControl.setValidators([
       Validators.required,
@@ -652,30 +687,27 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
       shipmentDateTime: shipmentDateTime,
     };
     this.consignmentsService.createConsignment(consignment).then(response => {
-      //this.router.navigate(['dashboard']);
-      // this.router.navigate(['consignments']);
       this.isLoading = false;
       if (response.status === 400) {
         console.log(consignment);
-        console.log("cos poszlo nie tak");
-        //this.toastService.showToast('Coś poszło nie tak   ; /');
+        this.toastService.showToast('Coś poszło nie tak   ; /');
       } else {
         this.form.reset();
         let consignmentId = response.consignmentId;
-        console.log(response);
-        //this.toastService.showToast(response.message);
+        this.toastService.showToast(response.message);
         this.consignmentsService.getConsignment(consignmentId).then(response => {
           console.log(SERVER_URL + response.labelPath);
-          let snackBar = this.showSnackbar("Otwórz list przewozowy", 'Otwórz', '50000');
-          snackBar.onAction().subscribe(()=>{
-            window.open(SERVER_URL + response.letterPath, '_blank');
-          })
-          
-        })
-       
-        //this.router.navigate(['consignments', consignmentId]);
-        //window.location.reload();
-
+          let snackBar = this.showSnackbar("Otwórz list przewozowy", 'Zobacz', '50000');
+          snackBar.onAction().subscribe(() => { 
+            // let blankWindow = window.open(SERVER_URL + response.letterPath, '');
+            // blankWindow.blur();
+            //window.focus();
+            var myWindow = window.open(SERVER_URL + response.letterPath, "_blank", "width=200, height=100");
+            myWindow.blur();
+            window.focus();
+            self.focus(); 
+          })     
+        });
       }
     })
   }
@@ -683,6 +715,6 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
     window.open(filePath, '_blank');
   }
   ngOnDestroy() {
-    this.authStatusSub.unsubscribe();
+    // this.authStatusSub.unsubscribe();
   }
 }

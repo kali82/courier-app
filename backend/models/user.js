@@ -7,11 +7,21 @@ const userSchema = mongoose.Schema(
     login: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     phone: { type: String },
+    firstName: { type: String },
+    lastName: { type: String },
+    street: { type: String },
+    house: { type: String },
+    apartment: { type: String },
+    city: { type: String },
+    contactPerson: { type: String },
+    email: { type: String },
+    postalCode: { type: String },
     consignments: [
       {
         id: String,
         creationDateTime: { type: String },
         shipmentDateTime: { type: String },
+        settled: { type: Boolean }
       },
     ],
   },
