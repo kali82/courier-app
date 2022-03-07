@@ -29,7 +29,6 @@ export class ConsignmentsService {
         console.log(response);
       return response;
     } catch (error) {
-      console.log(consignment + " dupa jasiu");
       return error;
     }
   }
@@ -47,11 +46,11 @@ export class ConsignmentsService {
           if (!response.consignments) {
             this.toastService.showToast(response.message);
           }
-
+          console.log(response)
           return response;
         },
         error => {
-          return "dupa "+ error;
+          return error;
         }
       );
   }
@@ -111,6 +110,7 @@ export class ConsignmentsService {
           insuranceValue: number;
         };
         shipmentDate: string;
+        settled: boolean;
         comment: string;
         content: string;
         labelPath: string;
@@ -129,11 +129,13 @@ export class ConsignmentsService {
       );
   }
 
-  deleteConsignments(selectedConsignments: number[]): Promise<any> {
+  deleteConsignments(userName: any, selectedConsignments: {userName: any, consignmentId: any}[]): Promise<any> {
     const userId = this.authService.getUserId();
-
+    console.log(userName);
+    console.log(userId);
     return this.http
       .patch<{ message: string; consignmentList: number[] }>(BACKEND_URL, {
+        userName,
         selectedConsignments,
         userId,
       })
@@ -145,6 +147,31 @@ export class ConsignmentsService {
           return response;
         },
         error => {
+          console.log("delete COnsignemnts error ")
+          return error;
+        }
+      );
+  }
+  settleConsignments(userName: any, selectedConsignments: {userName: any, consignmentId: any}[]): Promise<any> {
+    const userId = this.authService.getUserId();
+    this.listConsignments()
+    return this.http
+      .patch<{ message: string; consignmentList: number[] }>(BACKEND_URL+ 'settle', {
+        userName,
+        selectedConsignments,
+        userId,
+      })
+      .toPromise()
+      .then(
+        response => {
+          this.toastService.showToast(response.message);
+          this.authService.refresh();
+          this.listConsignments()
+          
+          return response;
+        },
+        error => {
+          console.log("settle Consignemnts error ")
           return error;
         }
       );

@@ -82,8 +82,9 @@ export class ConsignmentShowComponent implements OnInit, OnDestroy {
   }
 
   onDelete() {
-    const consignmentId = [this.consignment.consignmentId];
-    this.consignmentsService.deleteConsignments(consignmentId).then(
+    const consignmentId = [{userName: this.consignment.login, consignmentId: this.consignment.consignmentId}];
+    const userName = [this.consignment.login];
+    this.consignmentsService.deleteConsignments(userName, consignmentId).then(
       () => {
         this.router.navigate(['/consignments']);
       },

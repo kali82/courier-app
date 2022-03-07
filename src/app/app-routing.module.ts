@@ -3,6 +3,8 @@ import { Routes, RouterModule } from '@angular/router';
 
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { AuthGuard } from './auth/auth.guard';
+import { SettingsComponent } from './settings/settings.component';
+import { ConsignmentCreateComponent } from './consignments/consignment-create/consignment-create.component';
 
 const routes: Routes = [
   {
@@ -14,6 +16,16 @@ const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'settings',
+    component: SettingsComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'createConsignments',
+    component: ConsignmentCreateComponent,
     canActivate: [AuthGuard],
   },
   {

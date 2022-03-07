@@ -37,6 +37,7 @@
     "soap": "^0.39.0",
     "tslib": "^2.0.0",
     "winston": "^3.3.3",
+    "xlsx": "^0.17.3",
     "zone.js": "~0.10.3"
   },
   "devDependencies": {

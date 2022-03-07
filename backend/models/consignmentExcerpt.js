@@ -1,8 +1,10 @@
 class ConsignmentExcerpt {
-  constructor(consignmentId, creationDateTime, shipmentDateTime) {
+  constructor(consignmentId, creationDateTime, shipmentDateTime, settled, price) {
     this.consignmentId = consignmentId;
     this.creationDateTime = creationDateTime;
     this.shipmentDateTime = shipmentDateTime;
+    this.settled = settled;
+    this.price = price;
   }
   set setLogin(value) {
     this.login = value;
@@ -16,29 +18,35 @@ class ConsignmentExcerpt {
     this.receiverName = value;
   }
 
-  // do wyjebania jeśli niepotrzebne
-  // set setWidth(value) {
-  //   this.width = value;
-  // }
+  set setSettled(value) {
+    this.settled = value;
+  }
 
-  // set setType(value) {
-  //   this.type = value;
-  // }
+  set setWidth(value) {
+    this.width = value;
+  }
 
-  // set setHeight(value) {
-  //   this.height = value;
-  // }
+  set setType(value) {
+    this.type = value;
+  }
 
-  // set setLength(value) {
-  //   this.length = value;
-  // }
+  set setHeight(value) {
+    this.height = value;
+  }
 
-  // set setWeight(value) {
-  //   this.weight = value;
-  // }
+  set setLength(value) {
+    this.length = value;
+  }
+
+  set setWeight(value) {
+    this.weight = value;
+  }
 
   set setTrackAndTraceInfo(value) {
     this.trackAndTraceInfo = value;
+  }
+  set setPrice(value) {
+    this.price = value;
   }
 }
 

@@ -1,3 +1,337 @@
-<h1 class="mat-title" *ngIf="userIsAuthenticated">
-  daszbord
-</h1>
+<div class="">
+	<h1 class="mat-title" *ngIf="userIsAuthenticated">
+  		daszbord
+	</h1>
+	<div >
+		<input #pdfInput hidden="true" type="file" onclick="this.value=null" (change)="onPdfFileChange($event)" accept=".xlsx"/>
+		<button class="importButton" mat-flat-button color="primary" (click)="pdfInput.click()">Zwrot Pobrania</button>
+		<label class="path" *ngIf="pdfFileImported">{{pdfPath}}</label>
+	</div>
+	<div>
+		<input #csvInput hidden="true" type="file" onclick="this.value=null" (change)="onFileChange($event)" accept=".xlsx"/>
+		<button class="importButton"  mat-flat-button color="primary" (click)="csvInput.click()">Faktura</button>
+		<label class="path" *ngIf="fileImported">{{xlsPath}}</label>
+	</div>
+	<div>
+		<button class="importButton" *ngIf="pdfFileImported && fileImported"  mat-flat-button color="secondary" (click)="settleConsignments()">Generuj raport</button>
+		<!-- <button class="importButton"   mat-flat-button color="secondary" (click)="refreshTable()">refresh</button> -->
+
+	</div>
+	</div>
+	<!-- <div class="">
+		<label
+		*ngIf="fileImported"
+		>dałem excela {{data.length}} pozycji</label>
+	</div> -->
+	<!-- <div>
+		<label
+		*ngIf="isSettled"
+		>Suma rozliczonych pobran :  {{sumOfCoD}} złotych</label>
+	</div>
+	<div class="container" *ngIf="isSettled">
+		<table class="table table-striped table-bordered">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Cena Excel</th>
+					<th>Cena DHL</th>
+					<th>Kwota pobrania</th>
+					<th>Suma</th>
+					<th>User</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let cs2 of notSettledConsignmentsList">
+					<td>{{cs2.id}}</td>
+					<td>{{cs2.cena_excel}}</td>
+					<td>{{cs2.cena_dhl}}</td>
+					<td>{{cs2.kwota_pobrania}}</td>
+					<td>{{cs2.suma}}</td>
+					<td>{{cs2.user}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	
+	<div class="container" *ngIf="isSettled">
+		<table class="table table-striped table-bordered">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Cena Excel</th>
+					<th>Cena DHL</th>
+					<th>Kwota pobrania</th>
+					<th>Suma</th>
+					<th>User</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let cs of setlledConsignmentsList">
+					<td>{{cs.id}}</td>
+					<td>{{cs.cena_excel}}</td>
+					<td>{{cs.cena_dhl}}</td>
+					<td>{{cs.kwota_pobrania}}</td>
+					<td>{{cs.suma}}</td>
+					<td>{{cs.user}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div> -->
+	<mat-form-field class="filter">
+		<input
+		  matInput
+		  (keyup)="applyFilter($event.target.value)"
+		  placeholder="wyszukaj przesyłkę"
+		/>
+	  </mat-form-field>
+	  <button
+	  *ngIf="generated"
+    mat-button
+    class="settle-button"
+    (click)="settleSelected()"
+    matTooltip="rozlicz wszytskie"
+    matTooltipPosition="above"
+  >
+    <mat-icon>check_circle</mat-icon>
+    rozlicz
+  </button>
+	<div  class="list-container">
+
+		<mat-table #table [dataSource]="setlledConsignmentsList" matSort>
+	
+		  <!-- <ng-container matColumnDef="select" class="mat-col-checkbox">
+			<mat-header-cell *matHeaderCellDef>
+			  <mat-checkbox
+				(change)="$event ? masterToggle() : null"
+				[checked]="selection.hasValue() && isAllSelected()"
+				[indeterminate]="selection.hasValue() && !isAllSelected()"
+			  ></mat-checkbox>
+			</mat-header-cell>
+			<mat-cell *matCellDef="let element" (click)="$event.stopPropagation()">
+			  <mat-checkbox
+				(change)="$event ? selection.toggle(element) : null"
+				[checked]="selection.isSelected(element)"
+			  ></mat-checkbox>
+			</mat-cell>
+		  </ng-container> -->
+	
+		  <!-- <ng-container matColumnDef="rozliczone">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>
+			  rozliczone
+			</mat-header-cell>
+			<mat-cell *matCellDef="let element">
+			  <mat-checkbox
+			  disabled="true"
+			  [checked]= element.settled
+			></mat-checkbox>
+			  
+			</mat-cell>
+		  </ng-container> -->
+	
+		  <ng-container matColumnDef="id">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>
+			  ID przesyłki
+			</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{element.id}}</mat-cell>
+			<!-- <mat-cell>123</mat-cell> -->
+		  </ng-container>
+	
+		<ng-container matColumnDef="login">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>
+			  Użytkownik
+			</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.user }}</mat-cell>
+		  </ng-container>
+	 
+		  <ng-container matColumnDef="cena_faktura">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>
+			  Cena Netto Excel
+			</mat-header-cell>
+			<mat-cell *matCellDef="let element">{{ element.cena_excel }}</mat-cell>
+		  </ng-container>
+	 
+		  <ng-container matColumnDef="cena_dhl">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>
+			  Cena Netto DHL
+			</mat-header-cell>
+			<mat-cell *matCellDef="let element">
+			  {{ element.cena_dhl }}
+			</mat-cell>
+		  </ng-container>
+	
+		  <ng-container matColumnDef="kwota_pobrania">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>
+			  Kwota Pobrania
+			</mat-header-cell>
+			<mat-cell *matCellDef="let element">
+			  {{ element.kwota_pobrania}}
+			</mat-cell>
+		  </ng-container>
+	
+
+		  <ng-container matColumnDef="cena_brutto">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>
+			  Cena Brutto Excel
+			</mat-header-cell>
+			<mat-cell *matCellDef="let element">
+			  {{ element.cena_brutto }}
+			</mat-cell>
+		  </ng-container>
+
+		  <ng-container matColumnDef="suma">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>
+			  Suma
+			</mat-header-cell>
+			<mat-cell *matCellDef="let element">
+			  {{ element.suma }}
+			</mat-cell>
+		  </ng-container>
+		  <ng-container matColumnDef="settled">
+			<mat-header-cell *matHeaderCellDef mat-sort-header>
+			  Rozliczone
+			</mat-header-cell>
+			<mat-cell *matCellDef="let element">
+			  <mat-checkbox
+			  disabled="true"
+			  [checked]= element.settled
+			></mat-checkbox>
+			  
+			</mat-cell>
+		  </ng-container>
+
+		  <ng-container matColumnDef="action">
+			<mat-header-cell *matHeaderCellDef mat-sort-header> </mat-header-cell>
+			<mat-cell *matCellDef="let element">
+			  <button
+				class="edit-button"
+				mat-raised-button
+				color="primary"
+				matTooltip="rozlicz"
+				matTooltipPosition="above"
+				(click)="settleConsignment(element.user,element.id); $event.stopPropagation()"
+			  >
+				<mat-icon>attach_money</mat-icon>
+			  </button>
+			</mat-cell>
+		  </ng-container>
+	 
+		  <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+		  <mat-row
+			*matRowDef="let row; columns: displayedColumns"
+			matRipple
+			class="element-row"
+		  >
+		  </mat-row>
+		</mat-table>
+		
+	
+		<mat-progress-spinner
+		  color="primary"
+		  mode="indeterminate"
+		  *ngIf="isLoading"
+		>
+		</mat-progress-spinner>
+	
+		<mat-toolbar class="toolbar">
+		  <mat-toolbar-row>
+			
+			<mat-paginator
+			  pageSize="10"
+			  [pageSizeOptions]="[5, 10, 100]"
+			  (page)="pageEvent = handlePage($event)"
+			></mat-paginator>
+		  </mat-toolbar-row>
+		</mat-toolbar>
+		<!-- <ng-template #tpl let-element>
+			<div class="mat-row detail-row">
+			  <mat-grid-list cols="{{ detailColumns }}">
+				<mat-grid-tile >
+				  <div class="details-diemnsions">
+					<h5>wymiary:</h5><br>
+					<span>wysokość: {{ element.height }}cm</span><br>
+					<span>szerokość: {{ element.width }}cm</span><br>
+					<span>długość {{ element.length }}cm</span>
+				  </div>
+				</mat-grid-tile>
+				<mat-grid-tile>
+				  <p>nadawca {{ element.shipperName }}</p>
+				</mat-grid-tile>
+				<mat-grid-tile>
+				  <p>odbiorca {{ element.receiverName }}</p>
+				</mat-grid-tile>
+				<mat-grid-tile>
+				  <ng-container *ngFor="let status of element.trackAndTraceInfo">
+					<div>
+					  <p>{{ status.description }}</p>
+					  <p>{{ status.timestamp }}</p>
+					</div>
+				  </ng-container>
+				</mat-grid-tile>
+			  </mat-grid-list>
+			  
+			  <button
+			  mat-raised-button
+			  color="accent" 
+				matTooltip="szczegóły przesyłki"
+				(click)="showDetails(element.consignmentId)"
+			  >
+				szczegóły przesyłki
+			  </button>
+			</div>
+		  </ng-template> -->
+		  	<!-- <div>
+		<label
+		*ngIf="isSettled"
+		>Suma rozliczonych pobran :  {{sumOfCoD}} złotych</label>
+	</div>
+	<div class="container" *ngIf="isSettled">
+		<table class="table table-striped table-bordered">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Cena Excel</th>
+					<th>Cena DHL</th>
+					<th>Kwota pobrania</th>
+					<th>Suma</th>
+					<th>User</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let cs2 of notSettledConsignmentsList">
+					<td>{{cs2.id}}</td>
+					<td>{{cs2.cena_excel}}</td>
+					<td>{{cs2.cena_dhl}}</td>
+					<td>{{cs2.kwota_pobrania}}</td>
+					<td>{{cs2.suma}}</td>
+					<td>{{cs2.user}}</td>
+				</tr>
+			</tbody>
+		</table>
+	 </div> -->
+	
+	<!-- <div class="container" *ngIf="isSettled">
+		<table class="table table-striped table-bordered">
+			<thead>
+				<tr>
+					<th>ID</th>
+					<th>Cena Excel</th>
+					<th>Cena DHL</th>
+					<th>Kwota pobrania</th>
+					<th>Suma</th>
+					<th>User</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr *ngFor="let cs of setlledConsignmentsList">
+					<td>{{cs.id}}</td>
+					<td>{{cs.cena_excel}}</td>
+					<td>{{cs.cena_dhl}}</td>
+					<td>{{cs.kwota_pobrania}}</td>
+					<td>{{cs.suma}}</td>
+					<td>{{cs.user}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>  -->
+
+</div>	

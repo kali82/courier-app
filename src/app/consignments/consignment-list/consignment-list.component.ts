@@ -34,6 +34,7 @@ export class ConsignmentListComponent implements OnInit, OnDestroy {
     'shipperName',
     'receiverName',
     'status',
+    'rozliczone',
     'shipmentDateTime',
     'action',
   ];
@@ -66,6 +67,7 @@ export class ConsignmentListComponent implements OnInit, OnDestroy {
     this.consignmentsService.listConsignments().then(response => {
       this.isLoading = false;
       this.consignments = response.consignments;
+      console.log(response.consignments)
       this.dataSource = new MatTableDataSource<any>(this.consignments);
       this.dataSource.paginator = this.paginator;
       const sortState: Sort = {
@@ -93,12 +95,30 @@ export class ConsignmentListComponent implements OnInit, OnDestroy {
 
   deleteSelected() {
     let selectedConsignments = [];
+    let userNames = [];
     this.selection.selected.forEach(el => {
-      selectedConsignments.push(el.consignmentId);
+      selectedConsignments.push({userName: el.login,consignmentId: el.consignmentId});
+      userNames.push(el.login);
     });
-    this.consignmentsService.deleteConsignments(selectedConsignments).then(
+    this.consignmentsService.deleteConsignments(userNames, selectedConsignments).then(
       () => {
         this.listConsignments();
+        this.selection.clear();
+      },
+      error => {}
+    );
+  }
+  settleSelected() {
+    let selectedConsignments = [];
+    let userNames = [];
+    this.selection.selected.forEach(el => {
+      selectedConsignments.push({userName: el.login,consignmentId: el.consignmentId});
+      userNames.push(el.login);
+    });
+    this.consignmentsService.settleConsignments(userNames, selectedConsignments).then(
+      () => {
+        this.listConsignments();
+        this.selection.clear();
       },
       error => {}
     );

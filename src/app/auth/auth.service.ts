@@ -55,6 +55,64 @@ export class AuthService {
         }
       );
   }
+  updateUser(
+    login: string, 
+    shipperName: string, 
+    street: string,
+    house: string,
+    apartment: string,
+    city: string, 
+    contactPerson: string,
+    phone: string,
+    email: string,
+    postalCode: string){
+    this.http
+      .post<{ message: string }>(BACKEND_URL + 'update', {login, shipperName,street,house,apartment,city,contactPerson,phone,email,postalCode})
+      .subscribe(
+        response => {
+          console.log(response);
+          this.toastService.showToast(response.message);
+          // this.router.navigate(['/']);
+          // this.router.navigate(['/settings']);
+          this.refresh()
+        },
+        () => {
+           this.authStatusListener.next(false);
+           location.reload();
+        }
+      );
+  }
+  getUser(login:string) {
+    return this.http
+      .post<{
+        message: string;
+        login: string, 
+        shipperName: string, 
+        street: string,
+        house: string,
+        apartment: string,
+        city: string, 
+        contactPerson: string,
+        phone: string,
+        email: string,
+        postalCode: string
+      }>(BACKEND_URL + 'getUser', {login: login})
+      .toPromise()
+      .then(
+        response => {
+          console.log("USER AUTH RESPONSE")
+          console.log(response)
+          return response;
+        },
+        error => {         
+           console.log("USER ERROR AUTH RESPONSE")
+           console.log(error)
+          //this.router.navigate(['/consignments']);
+
+          return error;
+        }
+      );
+  }
 
   login(login: string, password: string) {
     const authData: AuthData = { login: login, password: password };
@@ -167,7 +225,7 @@ export class AuthService {
             );
             this.saveRefreshData(accessToken, expirationDate);
             this.authStatusListener.next(true);
-            this.toastService.showToast(response.message);
+            //this.toastService.showToast(response.message);
           } else {
             this.toastService.showToast(
               'Przedłużenie sesji użytkownika nieudane.'

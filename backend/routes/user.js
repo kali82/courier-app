@@ -7,10 +7,31 @@ const uid = require('rand-token').uid;
 const logger = require('../logger');
 const User = require('../models/user');
 const RefreshToken = require('../models/refreshToken');
+const user = require('../models/user');
 
 const secret = '1234';
 //const secret = process.env.tokenSecret;
 const accessTokenExpiresIn = 3600;
+
+router.post('/getUser', async (req, res) => {
+  User.find({ login: req.body.login })
+      .then(user => {
+        res.status(201).json({
+          message: 'Dane "' + user[0].login + '" zostały pobrane.',
+          user: user[0]
+        });
+      })
+      .catch(error => {
+        logger.error(req.originalUrl.concat(' error'));
+        res.status(403).json({
+          // m.in. Użytkownik o podanym login już istnieje
+          message: 'Nie mozna pobrac danych uzytkownika.',
+          error: error,
+        });
+        reject(error);
+      });
+  });
+
 
 router.post('/create', (req, res, next) => {
   bcrypt.hash(req.body.password, 10).then(hash => {
@@ -38,6 +59,41 @@ router.post('/create', (req, res, next) => {
       }
     );
   });
+});
+
+router.post('/update', async (req, res) => {
+  console.log(req.body)
+  const update = {
+    firstName: req.body.shipperName,
+    street: req.body.street, 
+    house: req.body.house,
+    apartment: req.body.apartment,
+    city: req.body.city,
+    contactPerson: req.body.contactPerson,
+    phone: req.body.phone,
+    email: req.body.email,
+    postalCode: req.body.postalCode
+  }
+  const filter = {login: req.body.login};
+   User.findOneAndUpdate(filter,update,{returnOriginal: false, upsert: true}, (err, doc) => {
+    if (err) {
+        console.log("Something wrong when updating data!");
+    } else {
+      res.status(201).json({
+        message: 'Zaktualizowano dane "' + doc.login + '".'
+      });
+    }
+
+    //console.log(doc);
+});
+  //const updatedDocument = await User.findOneAndUpdate(filter, update, { new: true }, function( error, result){
+    // In this moment, you recive a result object or error
+  //console.log(result)
+    // ... Your code when have result ... //
+//});
+  //console.log(updatedDocument)
+
+  //return updatedDocument;
 });
 
 router.post('/login', (req, res, next) => {

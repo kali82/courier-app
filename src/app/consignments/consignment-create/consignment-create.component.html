@@ -4,8 +4,10 @@
   id="newConsignment"
   [formGroup]="form"
   (submit)="onCreate()"
-  *ngIf="!isLoading"
+  *ngIf="!isLoading && showForm"
 >
+<div class="homeForm">
+  <div class="shipperForm">
   <mat-form-field appearance="fill" class="short">
     <mat-label>płatnik</mat-label>
     <mat-select formControlName="payerType">
@@ -277,7 +279,8 @@
       >format: email, max. 60 znaków</mat-error
     >
   </mat-form-field>
-
+</div>
+<div class="receiverForm">
   <h3 class="mat-h3">odbiorca:</h3>
   <mat-form-field appearance="fill" class="short">
     <mat-label>kraj</mat-label>
@@ -535,7 +538,8 @@
       >format: email, max. 60 znaków</mat-error
     >
   </mat-form-field>
-
+</div>
+</div>
   <h3 class="mat-h3">paczka:</h3>
   <mat-form-field appearance="fill" class="short">
     <mat-label>rodzaj</mat-label>
@@ -589,8 +593,7 @@
     <span *ngIf="wiState || form.get('width').value != null" matSuffix>cm</span>
     <mat-hint *ngIf="wiState" align="end">max {{ wMax }}cm</mat-hint>
     <mat-error *ngIf="form.get('width').invalid && form.get('width').touched"
-      >max. {{ wMax }}cm</mat-error
-    >
+      >max. {{ wMax }}cm</mat-error>
   </mat-form-field>
   <mat-form-field appearance="fill" class="short">
     <mat-label>szerokość</mat-label>
@@ -606,9 +609,10 @@
     />
     <span *ngIf="lState || form.get('length').value != null" matSuffix>cm</span>
     <mat-hint *ngIf="lState" align="end">max {{ lMax }}cm</mat-hint>
-    <mat-error *ngIf="form.get('length').invalid && form.get('length').touched"
-      >max. {{ lMax }}cm</mat-error
-    >
+    <mat-error *ngIf="(form.get('length').invalid && form.get('length').touched)"
+      >max. {{ lMax }}cm</mat-error>
+    <mat-error *ngIf="tt"
+      >max. {{ lMax }}cm</mat-error>
   </mat-form-field>
   <mat-form-field appearance="fill" class="short">
     <mat-label>wysokość</mat-label>

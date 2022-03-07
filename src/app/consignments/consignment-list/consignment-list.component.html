@@ -1,5 +1,6 @@
 <div *ngIf="isAuthenticated">
   <h1 class="mat-title">lista przesyłek</h1>
+  <div class="">
   <mat-form-field class="filter">
     <input
       matInput
@@ -7,8 +8,45 @@
       placeholder="wyszukaj przesyłkę"
     />
   </mat-form-field>
+</div>
+  <button
+    *ngIf="selection.hasValue()"
+    mat-button
+    class="delete-button"
+    (click)="deleteSelected()"
+    matTooltip="usuń wybrane"
+    matTooltipPosition="above"
+    >
+    <mat-icon>delete</mat-icon>
+    usuń
+  </button>
+  <button
+    *ngIf="selection.hasValue() && isAdmin"
+    mat-button
+    class="settle-button"
+    (click)="settleSelected()"
+    matTooltip="rozlicz wybrane"
+    matTooltipPosition="above"
+  >
+    <mat-icon>check_circle</mat-icon>
+    rozlicz
+  </button>
+  <button 
+    mat-raised-button 
+    color="accent" 
+    class="create-button"
+    routerLink="create">
+    
+    <i class="material-icons">
+      add_circle
+    </i>
+    utwórz nową przesyłkę
+  </button>
+
+
   <div class="list-container">
     <mat-table #table [dataSource]="dataSource" matSort>
+
       <ng-container matColumnDef="select" class="mat-col-checkbox">
         <mat-header-cell *matHeaderCellDef>
           <mat-checkbox
@@ -22,6 +60,19 @@
             (change)="$event ? selection.toggle(element) : null"
             [checked]="selection.isSelected(element)"
           ></mat-checkbox>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="rozliczone">
+        <mat-header-cell *matHeaderCellDef mat-sort-header>
+          rozliczone
+        </mat-header-cell>
+        <mat-cell *matCellDef="let element">
+          <mat-checkbox
+          disabled="true"
+          [checked]= element.settled
+        ></mat-checkbox>
+          
         </mat-cell>
       </ng-container>
 
@@ -65,6 +116,8 @@
           {{ element.trackAndTraceInfo[0].status }}
         </mat-cell>
       </ng-container>
+
+      
 
       <ng-container matColumnDef="shipmentDateTime">
         <mat-header-cell *matHeaderCellDef mat-sort-header>
@@ -123,16 +176,7 @@
 
     <mat-toolbar class="toolbar">
       <mat-toolbar-row>
-        <button
-          *ngIf="selection.hasValue()"
-          mat-button
-          class="delete-button"
-          (click)="deleteSelected()"
-          matTooltip="usuń wybrane"
-          matTooltipPosition="above"
-        >
-          <mat-icon>delete</mat-icon>
-        </button>
+        
         <mat-paginator
           pageSize="10"
           [pageSizeOptions]="[5, 10, 100]"
@@ -142,18 +186,18 @@
     </mat-toolbar>
   </div>
 
-  <button mat-raised-button color="accent" routerLink="create">
-    <i class="material-icons">
-      add_circle
-    </i>
-    utwórz nową przesyłkę
-  </button>
+
 
   <ng-template #tpl let-element>
     <div class="mat-row detail-row">
       <mat-grid-list cols="{{ detailColumns }}">
-        <mat-grid-tile>
-          <p>id {{ element.consignmentId }}</p>
+        <mat-grid-tile >
+          <div class="details-diemnsions">
+            <h5>wymiary:</h5><br>
+            <span>wysokość: {{ element.height }}cm</span><br>
+            <span>szerokość: {{ element.width }}cm</span><br>
+            <span>długość {{ element.length }}cm</span>
+          </div>
         </mat-grid-tile>
         <mat-grid-tile>
           <p>nadawca {{ element.shipperName }}</p>
@@ -170,12 +214,14 @@
           </ng-container>
         </mat-grid-tile>
       </mat-grid-list>
+      
       <button
-        mat-button
+      mat-raised-button
+      color="accent" 
         matTooltip="szczegóły przesyłki"
         (click)="showDetails(element.consignmentId)"
       >
-        szczegóły
+        szczegóły przesyłki
       </button>
     </div>
   </ng-template>

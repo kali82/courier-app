@@ -42,7 +42,26 @@
 button {
   margin: 2em 1.5em 0 0;
 }
-
+.delete-button {
+  background-color: red;
+  color: white;
+  margin: 0px 4px  !important;
+}
+.create-button {
+  margin: 0px 4px !important;
+}
+.settle-button { 
+  background-color: darkgreen;
+  color: white;
+  margin: 0px 4px !important;
+}
 mat-progress-spinner {
   margin: auto;
+}
+.details-dimensions  {  
+  display: block !important;
+  align-content: center !important;
+  align-self: baseline !important;
+  width: -webkit-fill-available  !important;
+  text-align: end  !important;
 }

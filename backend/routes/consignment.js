@@ -17,36 +17,46 @@ const ConsignmentExcerpt = require('../models/consignmentExcerpt');
 router.post('/', checkAuth, (req, res) => {
   new DHLNodeAPI().createClient(
     process.env.dhlUrl,
-   '').done(api => {console.log(api.getVersion())});
+   '').done(api => {});
   const userId = req.body.userId;
   let consignments = [];
-
   getDbConsignments(userId)
     .then(
+ 
       dbConsignments => {
-        let itemsToLabelData = [];
-        dbConsignments.forEach(dbConsignment => {
-          let consignment = new ConsignmentExcerpt(
-            dbConsignment.id,
-            dbConsignment.creationDateTime,
-            dbConsignment.shipmentDateTime
-          );
-          consignments.push(consignment);
+          let itemsToLabelData = [];
+          dbConsignments.forEach(dbConsignment => {
+            let consignment = new ConsignmentExcerpt(
+              dbConsignment.id,
+              dbConsignment.creationDateTime,
+              dbConsignment.shipmentDateTime,
+              dbConsignment.settled
+            );
+            consignments.push(consignment);
 
-          itemsToLabelData.push(
-            new Structures.ItemToLabelData(dbConsignment.id)
-          );
-        });
-        console.log('itemsToLabelData');
-          console.log(itemsToLabelData)
-        return itemsToLabelData;
+            itemsToLabelData.push(
+              new Structures.ItemToLabelData(dbConsignment.id)
+            );
+          });
+          return itemsToLabelData.length !== 0 ? itemsToLabelData : 0;
+          
       },
       error => {
-        console.log(error);
-        console.log('sdadasdasdasdasdasdasdasdas')
-
+        res.status(400).json({
+          message: 'Nie udało się pobrać przesyłek.',
+          error: error,
+        });  
       }
     )
+    .catch(error => {
+      //reject(error);
+      logger.error(req.originalUrl.concat(' error'));
+
+      res.status(400).json({
+        message: 'Nie udało się pobrać przesyłek.4',
+        error: error,
+      });
+    })
     .then(itemsToLabelData => {
       connectDHL()
         .then(api => {
@@ -62,6 +72,16 @@ router.post('/', checkAuth, (req, res) => {
                   consignments[i].setLogin = shipment.reference;
                   consignments[i].setShipperName = shipment.shipper.name;
                   consignments[i].setReceiverName = shipment.receiver.name;
+                  const item = shipment.pieceList.item[0];
+                  //console.log(shipment);
+                  consignments[i].setType = item.type;
+                  if (item.type != 'ENVELOPE') {
+                    consignments[i].setWidth = item.width;
+                    consignments[i].setHeight = item.height;
+                    consignments[i].setLength = item.length;
+                    consignments[i].setWeight = item.weight;
+                    consignments[i].setPrice = shipment.service.collectOnDeliveryValue;
+                  }
                   // wciąż zakładamy, że w przesyłce jest tylko jedna paczka/paleta/koperta
                   // jak sie zmieni wymaganie to do wyjebania
                   // const item = shipment.pieceList.item[0];
@@ -78,12 +98,21 @@ router.post('/', checkAuth, (req, res) => {
                 resolve(api);
               })
               .catch(error => {
-                console.log("123123123123123");
+          
                 console.log(error);
                 
                 reject(error);
               });
           });
+        })
+        .catch(error => {
+          reject(error);
+          logger.error(req.originalUrl.concat(' error'));
+
+          // res.status(400).json({
+          //   message: 'Nie udało się pobrać przesyłek.3',
+          //   error: error,
+          // });
         })
         .then(api => {
           let promises = [];
@@ -120,7 +149,7 @@ router.post('/', checkAuth, (req, res) => {
                     resolve();
                   })
                   .catch(error => {
-                    console.log(error)
+                    //console.log(error)
                     reject(error);
                   });
               })
@@ -128,6 +157,14 @@ router.post('/', checkAuth, (req, res) => {
           }
 
           return Promise.all(promises);
+        })
+        .catch(error => {
+          logger.error(req.originalUrl.concat(' error'));
+
+          res.status(400).json({
+            message: 'Brak przesyłek',
+            error: error,
+          });
         })
         .then(() => {
           logger.info(req.originalUrl.concat(' response'));
@@ -141,7 +178,7 @@ router.post('/', checkAuth, (req, res) => {
           logger.error(req.originalUrl.concat(' error'));
 
           res.status(400).json({
-            message: 'Nie udało się pobrać przesyłek.2',
+            message: 'Nie udało się pobrać przesyłek.6',
             error: error,
           });
         });
@@ -150,7 +187,7 @@ router.post('/', checkAuth, (req, res) => {
       logger.error(req.originalUrl.concat(' error'));
 
       res.status(400).json({
-        message: 'Nie udało się pobrać przesyłek.',
+        message: 'Nie udało się pobrać przesyłek.7',
         error: error,
       });
     });;
@@ -160,26 +197,46 @@ router.post('/', checkAuth, (req, res) => {
 router.patch('/', checkAuth, (req, res) => {
   let selectedConsignmentsId = [];
   let selectedConsignments = req.body.selectedConsignments;
-  let userId = req.body.userId;
+  console.log(selectedConsignments)
+  //let userId = req.body.userId;
+
+  selectedConsignments.forEach(selected => {
+      User.find({ login: selected.userName}, function (err, user) {
+        if (err){
+            console.log(err);
+        }
+        else{
+            console.log(user[0]);
+            selectedConsignmentsId.push(selected.consignmentId);
+            user[0].consignments.forEach((item, index) => {
+              if (item.id === selected.consignmentId) {
+                user[0].consignments.splice(index, 1);
+              }
+            });
+        }
+        user[0].save();
+    });
+      //console.log(user2);
+    //   User.findById(userId, (err, user) => {
+    //     if (err) {
+    //       res.status(400).json({
+    //         message: 'Użytkownik nie istnieje.',
+    //         error: err,
+    //       });
+    //     }
+    //   selectedConsignmentsId.push(selected.consignmentId);
+    //   user.consignments.forEach((item, index) => {
+    //     if (item.id === selected.consignmentId) {
+    //       user2.consignments.splice(index, 1);
+    //     }
+    //   });
+    //   user2.save();
+    // });
+   
+  });
   new DHLNodeAPI().createClient(
-     process.env.dhlUrl,'').done(api => {
-    User.findById(userId, (err, user) => {
-      if (err) {
-        res.status(400).json({
-          message: 'Użytkownik nie istnieje.',
-          error: err,
-        });
-      }
+     process.env.dhlUrl,'').done(api => {    
       api.setAuthData(process.env.dhlUser, process.env.dhlPass);
-      selectedConsignments.forEach(selected => {
-        selectedConsignmentsId.push(selected);
-        user.consignments.forEach((item, index) => {
-          if (item.id === selected) {
-            user.consignments.splice(index, 1);
-          }
-        });
-      });
-      user.save();
       api
         .deleteShipments(new Structures.ArrayOfString(selectedConsignmentsId))
         .done(
@@ -214,10 +271,8 @@ router.patch('/', checkAuth, (req, res) => {
             });
           }
         );
-    });
-  });
+      });
 });
-
 //tworzenie przesyłki
 router.post('/create', checkAuth, (req, res) => {
   const userId = req.body.userId;
@@ -335,7 +390,7 @@ router.post('/create', checkAuth, (req, res) => {
         ])
         .done(
           result => {
-            console.log("created DONEEE "+ result);
+            
             consignmentId = result[0].createShipmentsResult.item[0].shipmentId;
             User.findById(userId, (err, doc) => {
               if (err) {
@@ -351,6 +406,7 @@ router.post('/create', checkAuth, (req, res) => {
                 id: consignmentId,
                 creationDateTime: creationDateTime,
                 shipmentDateTime: shipmentDateTime,
+                settled: false
               });
               doc.save().then(
                 () => {
@@ -595,9 +651,10 @@ function connectDHL() {
       api => {  
         console.log("before set auth data");
         api.setAuthData(process.env.dhlUser, process.env.dhlPass);
-        resolve(api);
+        resolve(api)
       },
       error => {
+        console.log(error)
         reject('error');
       }
     );
@@ -612,15 +669,16 @@ function getDbConsignments(userId) {
     User.find(query)
       .then(users => {
         users.forEach(user => {
-          if (user.consignments.length === 0) {
-            reject('Użytkownik nie ma przesyłek.');
+          if (user.consignments.length >0) {
+          //   reject('Użytkownik nie ma przesyłek.');
+          // } else {
+            user.consignments.forEach(consignment => {
+              dbConsignments.push(consignment);
+            });
+            
           }
-          user.consignments.forEach(consignment => {
-            dbConsignments.push(consignment);
-          });
         });
-
-        resolve(dbConsignments);
+        return resolve(dbConsignments)      
       })
       .catch(error => {
         logger.error(req.originalUrl.concat(' error'));
@@ -629,6 +687,59 @@ function getDbConsignments(userId) {
       });
   });
 }
+
+router.patch('/settle', checkAuth, (req, res) => {
+  let selectedConsignmentsId = [];
+  let selectedConsignments = req.body.selectedConsignments;
+  //console.log(selectedConsignments)
+  //let userId = req.body.userId;
+
+  selectedConsignments.forEach(selected => {
+      User.find({ login: selected.userName}, function (err, user) {
+        if (err){
+            console.log(err);
+        }
+        else{
+            console.log(user[0]);
+            selectedConsignmentsId.push(selected.consignmentId);
+            console.log("CONSIGNMENTS");
+            console.log(user[0].consignments);
+            user[0].consignments.forEach((item, index) => {
+              console.log(item.id);
+              console.log(selected);
+              if (item.id == selected.consignmentId) {
+                console.log("ROZLICZONE")
+                console.log(index)
+                user[0].consignments[index].settled =true;
+              }
+            });
+        }
+        user[0].save();
+    
+    });
+      //console.log(user2);
+    //   User.findById(userId, (err, user) => {
+    //     if (err) {
+    //       res.status(400).json({
+    //         message: 'Użytkownik nie istnieje.',
+    //         error: err,
+    //       });
+    //     }
+    //   selectedConsignmentsId.push(selected.consignmentId);
+    //   user.consignments.forEach((item, index) => {
+    //     if (item.id === selected.consignmentId) {
+    //       user2.consignments.splice(index, 1);
+    //     }
+    //   });
+    //   user2.save();
+    // });
+   
+  });
+  res.status(200).json({
+    message:
+      ''+selectedConsignments.length + ' przesyłki zostały rozliczone.'
+  });
+});
 
 function buildQueryForDbUser(userId) {
   const isAdmin = userId === process.env.adminId ? true : false;
