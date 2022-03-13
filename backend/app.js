@@ -15,8 +15,8 @@ app.use(express.static('files'));
 app.use(bodyParser.json());
 
 const corsOptions = { 
-  // origin: process.env.ORIGIN_URL 
-  origin: 'http://localhost:4200'
+   origin: process.env.ORIGIN_URL 
+  //origin: 'http://localhost:4200'
 };
 app.use(cors(corsOptions));
 
