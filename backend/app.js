@@ -18,8 +18,16 @@ const corsOptions = {
    origin: process.env.ORIGIN_URL 
   //origin: 'http://localhost:4200'
 };
+
 app.use(cors(corsOptions));
 
+var allowCrossDomain = function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', "*");
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  next();
+}
+app.use(allowCrossDomain);
 app.use((req, res, next) => {
   logger.info(req.path.concat(' ', req.method, ' request from ', req.ip));
   next();
