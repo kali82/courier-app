@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-require('dotenv').config({ path: 'backend/.env' });
+require('dotenv').config({ path: './.env' });
 
 const logger = require('./logger');
 const userRoutes = require('./routes/user');
