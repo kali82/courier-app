@@ -22,7 +22,3 @@
   status = 200
 
 
-[[redirects]]
-  from = "/api/*"
-  to = “https://murmuring-hollows-26750.herokuapp.com/api/:splat"
-  status = 200
