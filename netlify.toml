@@ -15,3 +15,8 @@
     [headers.values]
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = 'GET, POST, OPTIONS, PUT, PATCH, DELETE'
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
