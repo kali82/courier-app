@@ -8,3 +8,10 @@
   # if one has been set, or the root directory if
   # a base hasn’t been set.
   directory = "functions/"
+
+[[headers]]
+  # Define which paths this specific [[headers]] block will cover.
+  for = "/*"
+    [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = 'GET, POST, OPTIONS, PUT, PATCH, DELETE'
