@@ -19,12 +19,14 @@ router.post('/', checkAuth, (req, res) => {
     process.env.dhlUrl,
    '').done(api => {});
   const userId = req.body.userId;
+  console.log('1')
   let consignments = [];
   getDbConsignments(userId)
     .then(
- 
+      
       dbConsignments => {
           let itemsToLabelData = [];
+          console.log('2')
           dbConsignments.forEach(dbConsignment => {
             let consignment = new ConsignmentExcerpt(
               dbConsignment.id,
@@ -38,6 +40,7 @@ router.post('/', checkAuth, (req, res) => {
               new Structures.ItemToLabelData(dbConsignment.id)
             );
           });
+          
           return itemsToLabelData.length !== 0 ? itemsToLabelData : 0;
           
       },
