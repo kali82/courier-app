@@ -10,7 +10,7 @@
   </mat-form-field>
 </div>
   <button
-    *ngIf="selection.hasValue()"
+    *ngIf="selection.hasValue() && isAdmin"
     mat-button
     class="delete-button"
     (click)="deleteSelected()"

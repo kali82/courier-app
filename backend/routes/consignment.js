@@ -35,10 +35,11 @@ router.post('/', checkAuth, (req, res) => {
               dbConsignment.settled
             );
             consignments.push(consignment);
-
+            console.log('2!!!')
             itemsToLabelData.push(
               new Structures.ItemToLabelData(dbConsignment.id)
             );
+            console.log('2????')
           });
           
           return itemsToLabelData.length !== 0 ? itemsToLabelData : 0;
@@ -52,7 +53,7 @@ router.post('/', checkAuth, (req, res) => {
       }
     )
     .catch(error => {
-      //reject(error);
+      reject(error);
       logger.error(req.originalUrl.concat(' error'));
 
       res.status(400).json({
@@ -61,8 +62,10 @@ router.post('/', checkAuth, (req, res) => {
       });
     })
     .then(itemsToLabelData => {
+      console.log("JESZCZE ZYJE3")
       connectDHL()
         .then(api => {
+          console.log("JESZCZE ZYJE4")
           return new Promise((resolve, reject) => {
             api
               .getLabelsData(
@@ -98,17 +101,21 @@ router.post('/', checkAuth, (req, res) => {
                 }
               })
               .then(() => {
+                console.log("JESZCZE ZYJE6")
+
                 resolve(api);
               })
               .catch(error => {
-          
+                console.log("JESZCZE ZYJE5")
+
                 console.log(error);
-                
+                resolve(api);
                 reject(error);
               });
           });
         })
         .catch(error => {
+          console.log("JESZCZE ZYJE2")
           reject(error);
           logger.error(req.originalUrl.concat(' error'));
 
@@ -119,6 +126,7 @@ router.post('/', checkAuth, (req, res) => {
         })
         .then(api => {
           let promises = [];
+          console.log("JESZCZE ZYJE")
           for (let i = 0; i < consignments.length; i++) {
             promises.push(
               new Promise((resolve, reject) => {
@@ -657,6 +665,7 @@ function connectDHL() {
         resolve(api)
       },
       error => {
+        console.log("error conectDHL()")
         console.log(error)
         reject('error');
       }

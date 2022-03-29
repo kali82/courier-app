@@ -5,6 +5,7 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { AuthGuard } from './auth/auth.guard';
 import { SettingsComponent } from './settings/settings.component';
 import { ConsignmentCreateComponent } from './consignments/consignment-create/consignment-create.component';
+import { UsersListComponent } from './users-list/users-list.component';
 
 const routes: Routes = [
   {
@@ -21,6 +22,11 @@ const routes: Routes = [
   {
     path: 'settings',
     component: SettingsComponent,
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'users',
+    component: UsersListComponent,
     canActivate: [AuthGuard],
   },
   {

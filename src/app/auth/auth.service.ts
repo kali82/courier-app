@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { AuthData } from './auth-data.model';
 import { ToastService } from '../shared/toast.service';
 import { environment } from '../../environments/environment';
+import { User } from '../settings/model/user';
 
 const BACKEND_URL = environment.apiURL + 'user/';
 const ADMIN_ID = environment.adminId;
@@ -97,6 +98,28 @@ export class AuthService {
         email: string,
         postalCode: string
       }>(BACKEND_URL + 'getUser', {login: login})
+      .toPromise()
+      .then(
+        response => {
+          console.log("USER AUTH RESPONSE")
+          console.log(response)
+          return response;
+        },
+        error => {         
+           console.log("USER ERROR AUTH RESPONSE")
+           console.log(error)
+          //this.router.navigate(['/consignments']);
+
+          return error;
+        }
+      );
+  }
+  getUsersList() {
+    return this.http
+      .get<{
+        message: string;
+        data: [User], 
+      }>(BACKEND_URL + 'listUsers')
       .toPromise()
       .then(
         response => {

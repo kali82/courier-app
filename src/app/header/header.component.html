@@ -1,16 +1,28 @@
 <mat-toolbar color="primary">
   <ng-container *ngIf="isAuthenticated">
     <button
-      mat-raised-button
+      *ngIf = "isMobile"
+      mat-mini-fab
       routerLink="/dashboard"
       routerLinkActive="mat-accent"
     >
       <i class="material-icons">
         home
       </i>
-      {{ login }} daszbord
     </button>
     <button
+    *ngIf = "!isMobile"
+    mat-raised-button
+    routerLink="/dashboard"
+    routerLinkActive="mat-accent"
+  >
+    <i class="material-icons">
+      home
+    </i>
+    {{ login }} daszbord
+  </button>
+    <button
+    *ngIf = "!isMobile"
       mat-raised-button
       routerLink="/consignments"
       routerLinkActive="mat-accent"
@@ -20,7 +32,19 @@
       </i>
       przesyłki
     </button>
+    <button
+    *ngIf = "isMobile"
+    mat-mini-fab
+      routerLink="/consignments"
+      routerLinkActive="mat-accent"
+    >
+      <i class="material-icons">
+        view_list
+      </i>
+
+    </button>
     <button 
+      *ngIf = "!isMobile"
       mat-raised-button 
       routerLink="/createConsignments"
       routerLinkActive="mat-accent">
@@ -29,8 +53,18 @@
       </i>
       utwórz przesyłkę
     </button>
+      <button 
+        *ngIf = "isMobile"
+        mat-mini-fab
+        routerLink="/createConsignments"
+        routerLinkActive="mat-accent">
+        <i class="material-icons">
+          add_circle
+        </i>
+
+      </button>
     <button
-      *ngIf="isAdmin"
+      *ngIf="isAdmin && !isMobile"
       mat-raised-button
       routerLink="/auth/create"
       routerLinkActive="mat-accent"
@@ -40,8 +74,41 @@
       </i>
       nowy user
     </button>
+      <button
+        *ngIf="isAdmin && isMobile"
+        mat-mini-fab
+        routerLink="/auth/create"
+        routerLinkActive="mat-accent"
+      >
+        <i class="material-icons">
+          person_add
+        </i>
+      </button>
+      <button
+      *ngIf="isAdmin && !isMobile"
+      mat-raised-button
+      routerLink="/users"
+      routerLinkActive="mat-accent"
+    >
+      <i class="material-icons">
+        group
+      </i>
+      users
+    </button>
+      <button
+        *ngIf="isAdmin && isMobile"
+        mat-mini-fab
+        mat-raised-button
+        routerLink="/users"
+        routerLinkActive="mat-accent"
+      >
+        <i class="material-icons">
+          group
+        </i>
+      </button>
     <span class="spacer"></span>
     <button
+    *ngIf = "!isMobile"
       mat-raised-button
       routerLink="/settings"
       routerLinkActive="mat-accent"
@@ -50,22 +117,33 @@
         settings
       </i>
       ustawienia
-  </button>
-    <button mat-raised-button (click)="onLogout()">
+    </button>
+      <button
+        *ngIf = "isMobile"
+        mat-mini-fab
+        routerLink="/settings"
+        routerLinkActive="mat-accent"
+      >
+        <i class="material-icons">
+          settings
+        </i>
+      </button>
+    <button 
+    *ngIf = "!isMobile"
+      mat-raised-button (click)="onLogout()">
       <i class="material-icons">
         exit_to_app
       </i>
       wyloguj
     </button>
-    <!-- <button mat-raised-button disabled>
+      <button 
+      *ngIf = "isMobile"
+      mat-mini-fab
+      (click)="onLogout()">
       <i class="material-icons">
-        brightness_medium
+        exit_to_app
       </i>
-      <i class="material-icons">
-        invert_colors
-      </i>
-      darek mode
-    </button> -->
+    </button>
   </ng-container>
   <button
     *ngIf="!isAuthenticated"

@@ -15,6 +15,7 @@ const SERVER_URL = environment.serverUrl;
 })
 export class ConsignmentShowComponent implements OnInit, OnDestroy {
   isLoading = true;
+  isAdmin = false;
   consignment: Consignment;
   private authStatusSub: Subscription;
 
@@ -26,9 +27,11 @@ export class ConsignmentShowComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    this.isAdmin = this.authService.getIsAdmin();
     this.authStatusSub = this.authService
       .getAuthStatusListener()
       .subscribe(() => {
+        this.isAdmin = this.authService.getIsAdmin();
         this.isLoading = false;
       });
 

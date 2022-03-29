@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Subscription } from 'rxjs';
 
 import { AuthService } from '../auth/auth.service';
@@ -9,12 +9,17 @@ import { AuthService } from '../auth/auth.service';
   styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent implements OnInit, OnDestroy {
+  screenHeight: number;
+  screenWidth: number;
   isAuthenticated = false;
   isAdmin = false;
   login: String;
+  isMobile = false;
   private authListenerSubs: Subscription;
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) {
+    this.onResize();
+  }
 
   ngOnInit() {
     this.isAuthenticated = this.authService.getIsAuth();
@@ -29,6 +34,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
       });
   }
 
+  @HostListener('window:resize', ['$event'])
+  onResize(event?) {
+    this.screenHeight = window.innerHeight;
+    this.screenWidth = window.innerWidth;
+    if(this.screenWidth < 600 ){
+       this.isMobile = true;
+    } else this.isMobile = false
+    console.log(this.screenHeight, this.screenWidth, this.isMobile);
+  }
   onLogout() {
     this.authService.logout();
   }
