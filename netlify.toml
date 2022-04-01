@@ -19,7 +19,7 @@
     preload'''
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = 'GET, POST, OPTIONS, PUT, PATCH, DELETE'
-    Test = test
+    Test = "test"
 
 [[redirects]]
   from = "/*"
