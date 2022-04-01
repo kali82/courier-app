@@ -26,12 +26,5 @@
   to = "/index.html"
   status = 200
   headers = {X-From = "netlify", X-Custom-Token = "my custom token"}
-/*
-  [headers.values]
-  Strict-Transport-Security = '''
-  max-age=63072000;
-  includeSubDomains;
-  preload'''
-  Access-Control-Allow-Origin = "*"
-  Access-Control-Allow-Methods = 'GET, POST, OPTIONS, PUT, PATCH, DELETE'
-  Test = test
+
+
