@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { Router } from '@angular/router';
@@ -6,10 +6,6 @@ import { Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AuthService } from '../auth/auth.service';
 import { ConsignmentsService } from '../consignments/consignments.service';
-import { Consignment } from '../consignments/model/consignment.model';
-import { Piece } from '../consignments/model/piece.model';
-import { ReceiverAddress } from '../consignments/model/receiver-address.model';
-import { Service } from '../consignments/model/service.model';
 import { ShipperAddress } from '../consignments/model/shipper-address.model';
 import { ToastService } from '../shared/toast.service';
 
@@ -22,6 +18,7 @@ const SERVER_URL = environment.serverUrl;
   styleUrls: ['./settings.component.sass']
 })
 export class SettingsComponent implements OnInit, OnDestroy {
+  @ViewChild('fileInput') fileInput: ElementRef;
   sceState = false;
   scphState = false;
   scpState = false;
@@ -86,6 +83,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.form2.get('shipperContactEmail').value,
       this.form2.get('shipperPostalCode').value
        );
+  }
+  updateImage(){
+    this.authService.updateImage(
+      this.user,
+    );
   }
   // getUserPersonalData(){
   //   const login = this.authService.getLogin();
@@ -219,6 +221,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
   open(filePath) {
     window.open(filePath, '_blank');
   }
+  file:any;
+  // fileChanged(e) {
+  //   let reader = new FileReader();
+  //   this.file = e.target.files[0];
+  //   reader.
+  //   reader.readAsDataURL(e.target.files[0]);
+  //   let value = <String>reader.result;
+  //   console.log(value)
+
+  //   console.log(this.file)
+  // }
   ngOnDestroy() {
     this.authStatusSub.unsubscribe();
   }

@@ -56,6 +56,25 @@ export class AuthService {
         }
       );
   }
+  updateImage(
+    login: string, 
+    ){
+    this.http
+      .post<{ message: string }>(BACKEND_URL + 'upload', {login})
+      .subscribe(
+        response => {
+          console.log(response);
+          this.toastService.showToast(response.message);
+          // this.router.navigate(['/']);
+          // this.router.navigate(['/settings']);
+          this.refresh()
+        },
+        () => {
+           this.authStatusListener.next(false);
+           //location.reload();
+        }
+      );
+  }
   updateUser(
     login: string, 
     shipperName: string, 
