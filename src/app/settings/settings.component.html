@@ -1,38 +1,10 @@
-<h1>To Upload Image on mongoDB</h1>
-    <hr>
-    <div>
-        <form action="/" method="POST" enctype="multipart/form-data">
-            <div>
-                <label for="name">Image Title</label>
-                <input type="text" id="name" placeholder="Name" 
-                       value="" name="name" required>
-            </div>
-            <div>
-                <label for="desc">Image Description</label>
-                <textarea id="desc" name="desc" value="" rows="2" 
-                          placeholder="Description" required>
-                </textarea>
-            </div>
-            <div>
-                <label for="image">Upload Image</label>
-                <input type="file" id="image" 
-          
-                       name="image" value="" required>
-            </div>
-            <div>
-                <button
-                 type="submit"
-                 
-                 (click)="updateImage()"
-                 >Submit
-                </button>
-            </div>
-        </form>
-    </div>
-  
-    <hr>
-
-
+<h3 class="mat-h3">Dane {{ user }}:</h3>
+<img src={{imgUrl}} alt="avatar" cursor="pointer">
+<div class="avatar">
+  <button id="avatar" type="button" mat-raised-button (click)="fileInput.click()">Zmień zdjęcie</button>
+  <input hidden (change)="selectFile($event)" #fileInput type="file" id="file">
+</div>
+<div class=""></div>
 <form
   id="newConsignment"
   [formGroup]="form2"
@@ -41,7 +13,7 @@
 >
 <div class="homeForm">
   <div class="shipperForm">
-  <h3 class="mat-h3">Dane {{ user }}:</h3>
+  
   <mat-form-field appearance="fill" class="long">
     <mat-label>nazwa</mat-label>
     <input

@@ -2,7 +2,9 @@
 <ul class="heroes">
   <li *ngFor="let user of users">
     <button [class.selected]="user === selectedUser" type="button" (click)="onSelect(user)">
-      <span class="badge">{{user._id}}</span>
+      <!-- <span class="badge"> -->
+        <img src="{{imgUrl + user.login + '.png'}}" alt="">
+      <!-- </span> -->
       <span class="name">{{user.login}}</span>
     </button>
   </li>

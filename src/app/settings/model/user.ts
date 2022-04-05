@@ -9,5 +9,5 @@ export interface User {
           settled: Boolean
         },
     ]
-    phone: string 
+    phone: string;
   }

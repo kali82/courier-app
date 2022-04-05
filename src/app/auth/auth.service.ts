@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpRequest } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 import { AuthData } from './auth-data.model';
 import { ToastService } from '../shared/toast.service';
@@ -10,6 +10,7 @@ import { User } from '../settings/model/user';
 
 const BACKEND_URL = environment.apiURL + 'user/';
 const ADMIN_ID = environment.adminId;
+const baseUrl = environment.serverUrl;
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -18,6 +19,7 @@ export class AuthService {
   private accessToken: string;
   private accessTokenTimer: any;
   private authStatusListener = new Subject<boolean>();
+  private baseUrl = environment.apiURL + 'user';
 
   constructor(
     private http: HttpClient,
@@ -56,25 +58,30 @@ export class AuthService {
         }
       );
   }
-  updateImage(
-    login: string, 
-    ){
-    this.http
-      .post<{ message: string }>(BACKEND_URL + 'upload', {login})
-      .subscribe(
-        response => {
-          console.log(response);
-          this.toastService.showToast(response.message);
-          // this.router.navigate(['/']);
-          // this.router.navigate(['/settings']);
-          this.refresh()
-        },
-        () => {
-           this.authStatusListener.next(false);
-           //location.reload();
-        }
-      );
+  
+  upload(file: File): Observable<HttpEvent<any>> {
+    let login = this.getLogin();
+    const formData: FormData = new FormData();
+    formData.append('file', file);
+    formData.append('login', login);
+    const req = new HttpRequest('POST', `${this.baseUrl}/upload`, formData, {
+      reportProgress: true,
+      responseType: 'json'
+    });
+    return this.http.request(req);
   }
+
+  getFiles(): Observable<any> {
+    let avatars = this.http.get(`${this.baseUrl}/files`);
+    console.log(avatars)
+    return avatars;
+
+  }
+  getAvatar(): Observable<any> {
+    let login = this.getLogin()
+    return this.http.get(`${this.baseUrl}/files/${login}.png`);
+  }
+
   updateUser(
     login: string, 
     shipperName: string, 

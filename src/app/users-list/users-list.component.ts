@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { ToastService } from '../shared/toast.service';
 import { User } from '../settings/model/user';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-users-list',
@@ -17,7 +18,7 @@ export class UsersListComponent implements OnInit {
   isLoading = true;
   private authStatusSub: Subscription;
   public density = 'comfortable';
-
+  imgUrl = environment.apiURL+"user/files/"
   constructor(
     public route: ActivatedRoute,
     private authService: AuthService,

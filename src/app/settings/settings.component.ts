@@ -1,8 +1,11 @@
+import { HttpEventType, HttpResponse } from '@angular/common/http';
+import { elementEventFullName } from '@angular/compiler/src/view_compiler/view_compiler';
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material';
 import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import * as process from 'process';
+import { Observable, Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { AuthService } from '../auth/auth.service';
 import { ConsignmentsService } from '../consignments/consignments.service';
@@ -15,10 +18,17 @@ const SERVER_URL = environment.serverUrl;
 @Component({
   selector: 'app-settings',
   templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.sass']
+  styleUrls: ['./settings.component.css']
 })
 export class SettingsComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput: ElementRef;
+  
+  selectedFiles: FileList;
+  currentFile: File;
+  progress = 0;
+  message = '';
+  fileInfos: Observable<any>;
+
   sceState = false;
   scphState = false;
   scpState = false;
@@ -46,6 +56,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   );
   private authStatusSub: Subscription;
   user = this.authService.getLogin();
+  // login = 'kkk.png'
+  imgUrl = environment.apiURL+"user/files/"+this.user+".png"
   showForm;
   constructor(
     public consignmentsService: ConsignmentsService,
@@ -57,6 +69,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
 
   async ngOnInit() {
+    console.log(environment.apiURL+"user/files/kkk.png")
+    let avatar = document.getElementById("avatar");
+    avatar.style.background = environment.apiURL+"/user/files/kkk.png"
     let login = this.authService.getLogin();
     this.authService.getUser(login).then(data => {
       this.showForm = true;
@@ -69,7 +84,55 @@ export class SettingsComponent implements OnInit, OnDestroy {
       .subscribe(authStatus => {
         this.isLoading = false;
       });
+
   }
+////////////////////////////////
+  selectFile(event): void {
+    this.selectedFiles = event.target.files;
+    try{
+      this.upload()
+      
+    }catch(err){
+      console.log(err)
+    }
+  }
+
+  onFileSelected() {
+    const inputNode: any = document.querySelector('#file');
+  
+    if (typeof (FileReader) !== 'undefined') {
+      const reader = new FileReader();
+  
+      reader.onload = (e: any) => {
+        this.selectedFiles = e.target.result;
+      };
+  
+      reader.readAsArrayBuffer(inputNode.files[0]);
+    }
+  }
+  upload(): void {
+    this.progress = 0;
+    this.currentFile = this.selectedFiles.item(0);
+    this.authService.upload(this.currentFile).subscribe(
+      event => {
+        if (event.type === HttpEventType.UploadProgress) {
+          this.progress = Math.round(100 * event.loaded / event.total);
+        } else if (event instanceof HttpResponse) {
+          this.message = event.body.message;
+          this.fileInfos = this.authService.getFiles();
+        }
+      },
+      err => {
+        this.progress = 0;
+        this.message = 'Could not upload the file!';
+        this.currentFile = undefined;
+      });
+    window.location.reload();
+    this.selectedFiles = undefined;
+  }
+
+
+  ////////////////////////////////
   updatePersonalData(){
     this.authService.updateUser(
       this.user,
@@ -84,17 +147,6 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.form2.get('shipperPostalCode').value
        );
   }
-  updateImage(){
-    this.authService.updateImage(
-      this.user,
-    );
-  }
-  // getUserPersonalData(){
-  //   const login = this.authService.getLogin();
-  //   this.authService.getUser(login).then(data => {
-  //     return data});
-
-  // }
 
   showSnackbar(content, action, duration) {
     return this.snackBar.open(content, action, {
