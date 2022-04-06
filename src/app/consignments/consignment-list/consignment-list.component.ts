@@ -2,12 +2,11 @@ import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { SelectionModel } from '@angular/cdk/collections';
-import {
-  MatPaginator,
-  MatTableDataSource,
-  MatSort,
-  Sort,
-} from '@angular/material';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatSort } from '@angular/material/sort';
+import { Sort } from '@angular/material/sort';
+
 
 import { AuthService } from '../../auth/auth.service';
 import { ConsignmentsService } from '../consignments.service';

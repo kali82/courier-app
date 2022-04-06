@@ -1,10 +1,8 @@
-<h2>Użytkownicy</h2>
+<!-- <h2>Użytkownicy</h2>
 <ul class="heroes">
   <li *ngFor="let user of users">
     <button [class.selected]="user === selectedUser" type="button" (click)="onSelect(user)">
-      <!-- <span class="badge"> -->
         <img src="{{imgUrl + user.login + '.png'}}" alt="">
-      <!-- </span> -->
       <span class="name">{{user.login}}</span>
     </button>
   </li>
@@ -24,4 +22,40 @@
         zmień hasło
    </button>
 </div>
+</div> -->
+
+<div class="content">
+  <div fxLayout="row wrap" fxLayoutGap="15px grid">
+    <div  fxFlex="25%" fxFlex.xs="100%" fxFlex.sm="33%" fxFlex.md="50%"  *ngFor="let user of users">
+      <mat-card class="mat-elevation-z4" >
+        
+        <mat-card-header style="display: grid;justify-content: center;">
+          
+          <img mat-card-image src="{{imgUrl + user.login + '.png'}}"  (error)="onImgError($event)">
+        </mat-card-header>
+        <mat-card-title style="text-align: center;">{{user.login}}</mat-card-title>
+        <mat-card-content>
+          <div class="">
+          <p>
+            przesylki: {{user.consignments.length}}
+          <span *ngIf=user.phone style="float: right;">  tel: {{user.phone}}</span>  
+        </p>
+        </div>
+        </mat-card-content>
+        <mat-card-actions>
+          <button mat-button>LIKE</button>
+          <button mat-button>SHARE</button>
+          <button
+          class="delete-button"
+          mat-button
+          matTooltip="usuń wybrane"
+          matTooltipPosition="above"
+          >
+          <mat-icon>delete</mat-icon>
+          usuń
+        </button>
+        </mat-card-actions>
+      </mat-card>
+    </div>
+  </div>
 </div>

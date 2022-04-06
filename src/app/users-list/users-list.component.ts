@@ -6,6 +6,7 @@ import { ToastService } from '../shared/toast.service';
 import { User } from '../settings/model/user';
 import { environment } from 'src/environments/environment';
 
+
 @Component({
   selector: 'app-users-list',
   templateUrl: './users-list.component.html',
@@ -19,6 +20,7 @@ export class UsersListComponent implements OnInit {
   private authStatusSub: Subscription;
   public density = 'comfortable';
   imgUrl = environment.apiURL+"user/files/"
+  dimgUrl = environment.apiURL+"user/files/defaultUser.png"
   constructor(
     public route: ActivatedRoute,
     private authService: AuthService,
@@ -41,6 +43,10 @@ export class UsersListComponent implements OnInit {
   onSelect(user: User): void {
     this.selectedUser = user;
   }
+  onImgError(event){
+    event.target.src = this.dimgUrl
+   //Do other stuff with the event.target
+   }
 
 
 

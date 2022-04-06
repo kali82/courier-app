@@ -14,7 +14,8 @@ import { SettingsComponent } from './settings/settings.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UsersListComponent } from './users-list/users-list.component';
-import { MatFormFieldModule } from '@angular/material';
+import {FlexLayoutModule} from "@angular/flex-layout";
+
 @NgModule({
   declarations: [AppComponent, DashboardComponent, HeaderComponent, SettingsComponent, UsersListComponent],
   imports: [
@@ -26,8 +27,9 @@ import { MatFormFieldModule } from '@angular/material';
     CommonModule,
     ReactiveFormsModule,
     AngularMaterialModule,
-    MatFormFieldModule,
-    FormsModule
+    FormsModule,
+    FlexLayoutModule
+    
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
