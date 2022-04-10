@@ -59,6 +59,26 @@ export class AuthService {
       );
   }
   
+  removeUser(login: string) {
+    const authData: AuthData = { login: login, password: '' };
+    console.log(login)
+    return this.http
+      .patch<{ message: string }>(BACKEND_URL + 'delete', {login})
+      .toPromise()
+      .then(
+        response => {
+          location.reload();
+          this.toastService.showToast(response.message);
+
+          return response;
+        },
+        error => {
+          console.log("delete user error ")
+          return error;
+        }
+      );
+  }
+  
   upload(file: File): Observable<HttpEvent<any>> {
     let login = this.getLogin();
     const formData: FormData = new FormData();

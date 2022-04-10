@@ -5,6 +5,8 @@ import { AuthService } from '../auth/auth.service';
 import { ToastService } from '../shared/toast.service';
 import { User } from '../settings/model/user';
 import { environment } from 'src/environments/environment';
+import { ConfirmDialogComponent, ConfirmDialogModel } from '../confirm-dialog/confirm-dialog.component';
+import { MatDialog } from '@angular/material/dialog';
 
 
 @Component({
@@ -18,14 +20,15 @@ export class UsersListComponent implements OnInit {
   selectedUser?: User;
   isLoading = true;
   private authStatusSub: Subscription;
-  public density = 'comfortable';
   imgUrl = environment.apiURL+"user/files/"
   dimgUrl = environment.apiURL+"user/files/defaultUser.png"
+  result: string = '';
   constructor(
     public route: ActivatedRoute,
     private authService: AuthService,
     private toastService: ToastService,
-    private router: Router
+    private router: Router,
+    public dialog: MatDialog
   ) { }
 
   ngOnInit(): void {
@@ -42,12 +45,38 @@ export class UsersListComponent implements OnInit {
   }
   onSelect(user: User): void {
     this.selectedUser = user;
+    console.log(user)
   }
   onImgError(event){
     event.target.src = this.dimgUrl
    //Do other stuff with the event.target
-   }
+  }
+  deleteUser(user: User): void{
+     console.log(user.login)
+     this.authService.removeUser(user.login).then(data => {
+      this.toastService.showToast(data.message)
+      this.authService.getUsersList().then(data => {
+        this.toastService.showToast(data.message)
+        this.users = data.data;
+      });
+     })
+  }
+   confirmDialog(user: User): void {
+    const message = 'Jestes pewien?';
+    const title = 'Usuwasz '+ user.login
+    const login =  user.login
+    const dialogData = new ConfirmDialogModel(title, message, login);
 
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      maxWidth: "800px",
+      minWidth: "400px",
+      data: dialogData
+    });
+
+    dialogRef.afterClosed().subscribe(dialogResult => {
+      this.result = dialogResult;
+    });
+  }
 
 
 }

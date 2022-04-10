@@ -1,0 +1,15 @@
+<div class=""><mat-icon class="warning">warning</mat-icon>
+<h1
+style="display: inline;"
+mat-dialog-title>
+    {{title}}
+  </h1>
+</div>
+  <div mat-dialog-content>
+    <p>{{message}}</p>
+  </div>
+  
+  <div mat-dialog-actions>
+    <button mat-button (click)="onDismiss()">Anuluj</button>
+    <button style="float: right;" mat-button color="red" (click)="onConfirm()">Usuń!</button>
+  </div>

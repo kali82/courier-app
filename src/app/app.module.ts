@@ -15,9 +15,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UsersListComponent } from './users-list/users-list.component';
 import {FlexLayoutModule} from "@angular/flex-layout";
+import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
 
 @NgModule({
-  declarations: [AppComponent, DashboardComponent, HeaderComponent, SettingsComponent, UsersListComponent],
+  declarations: [AppComponent, DashboardComponent, HeaderComponent, SettingsComponent, UsersListComponent, ConfirmDialogComponent],
   imports: [
     BrowserModule,
     HttpClientModule,
