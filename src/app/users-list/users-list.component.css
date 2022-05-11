@@ -4,6 +4,9 @@
   padding: 0;
   width: 15em;
 }
+.mat-card-content {
+  display: flex;
+}
 .mat-card-header .center-header  {
   display: grid !important;
   justify-content: center !important;

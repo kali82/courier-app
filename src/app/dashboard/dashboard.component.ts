@@ -14,6 +14,7 @@ import { Sort} from '@angular/material/sort';
 import { Consignment } from '../consignments/model/consignment.model';
 import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
+import { FlexStyleBuilder } from '@angular/flex-layout';
 
 type AOA = any[][];
 const SERVER_URL = environment.serverUrl;
@@ -68,6 +69,8 @@ export class DashboardComponent implements OnInit, OnDestroy {
   wopts: XLSX.WritingOptions = { bookType: 'xlsx', type: 'array' };
   fileName: string = 'SheetJS.xlsx';
   private authListenerSubs: Subscription;
+  EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+  EXCEL_EXTENSION = '.xlsx';
 
   constructor(
     private authService: AuthService,
@@ -75,6 +78,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public consignmentsService: ConsignmentsService,) {}
 
   ngOnInit() {
+  
     this.userIsAuthenticated = this.authService.getIsAuth();
     this.isAdmin = this.authService.getIsAdmin();
     this.authListenerSubs = this.authService
@@ -105,6 +109,24 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.authListenerSubs.unsubscribe();
+  }
+
+
+  public exportAsExcelFile(excelFileName: string): void {
+    
+    const myworksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.dataSource);
+    const myworkbook: XLSX.WorkBook = { Sheets: { 'data': myworksheet }, SheetNames: ['data'] };
+    const excelBuffer: any = XLSX.write(myworkbook, { bookType: 'xlsx', type: 'array' });
+    this.saveAsExcelFile(excelBuffer, excelFileName);
+  }
+
+  private saveAsExcelFile(buffer: any, fileName: string): void {
+    const savedFileName = fileName + '_exported.xlsx';
+    const data: Blob = new Blob([buffer], {
+      type: this.EXCEL_TYPE
+    });
+    XLSX.writeFileAsync(savedFileName,buffer,{})
+   // FileSaver.saveAs(data, fileName + '_exported'+ EXCEL_EXTENSION);
   }
   onPdfFileChange(evt: any) {
     this.pdfFileImported = true;

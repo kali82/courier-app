@@ -95,9 +95,18 @@
     <mat-icon>check_circle</mat-icon>
     rozlicz
   </button>
+  <button
+		mat-button
+		(click)="exporter.exportTable('xlsx')"
+		matTooltip="export Excel"
+		matTooltipPosition="above"
+		>
+		<mat-icon>check_circle</mat-icon>
+		export
+	</button>
 	<div  class="list-container">
 
-		<mat-table #table [dataSource]="setlledConsignmentsList" matSort>
+		<mat-table matTableExporter #table [dataSource]="setlledConsignmentsList" matSort #exporter="matTableExporter">
 	
 		  <!-- <ng-container matColumnDef="select" class="mat-col-checkbox">
 			<mat-header-cell *matHeaderCellDef>

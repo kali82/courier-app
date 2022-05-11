@@ -112,9 +112,18 @@
         <mat-header-cell *matHeaderCellDef mat-sort-header>
           status
         </mat-header-cell>
-        <mat-cell *matCellDef="let element">
+        <!-- <mat-cell *matCellDef="let element">
           {{ element.trackAndTraceInfo[0].status }}
-        </mat-cell>
+        </mat-cell> -->
+        <mat-cell *matCellDef="let element" >
+          <div *ngFor=" let item of element?.trackAndTraceInfo; let last = last;">
+            <ng-container *ngIf="last">
+              <div >
+                  <span>{{item.status}}</span>
+              </div>
+            </ng-container>
+          </div>
+      </mat-cell>
       </ng-container>
 
       
@@ -206,8 +215,8 @@
           <p>odbiorca {{ element.receiverName }}</p>
         </mat-grid-tile>
         <mat-grid-tile>
-          <ng-container *ngFor="let status of element.trackAndTraceInfo">
-            <div>
+          <ng-container *ngFor="let status of element.trackAndTraceInfo; let last=last">
+            <div *ngIf="last">
               <p>{{ status.description }}</p>
               <p>{{ status.timestamp }}</p>
             </div>

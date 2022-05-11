@@ -693,6 +693,20 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
         this.toastService.showToast('Coś poszło nie tak   ; /');
       } else {
         this.form.reset();
+        this.authService.getUser(login).then(data => {
+          this.showForm = true;
+          //this.toastService.showToast(data.message)
+          this.createForm(data);
+          this.setPieceValidators();
+          this.setServiceValidators();
+      
+          this.authStatusSub = this.authService
+            .getAuthStatusListener()
+            .subscribe(authStatus => {
+              this.isLoading = false;
+            });
+        });
+        //window.location.reload();
         let consignmentId = response.consignmentId;
         this.toastService.showToast(response.message);
         this.consignmentsService.getConsignment(consignmentId).then(response => {
