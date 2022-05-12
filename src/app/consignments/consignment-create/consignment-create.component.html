@@ -550,7 +550,7 @@
       (focusout)="tState = false"
     >
       <mat-option value="PACKAGE">paczka</mat-option>
-      <mat-option value="PALLETTE">paleta</mat-option>
+      <mat-option value="PALLET">paleta</mat-option>
       <mat-option value="ENVELOPE">koperta</mat-option>
     </mat-select>
     <mat-error
@@ -573,13 +573,17 @@
     <span *ngIf="weState || form.get('weight').value != null" matSuffix
       >kg</span
     >
-    <mat-hint *ngIf="weState" align="end">max 31kg</mat-hint>
-    <mat-error *ngIf="form.get('weight').invalid && form.get('weight').touched"
+    <mat-hint *ngIf="weState && !isPallette" align="end">max 31kg</mat-hint>
+    <mat-error *ngIf="!isPallette && form.get('weight').invalid && form.get('weight').touched"
       >max. 31kg</mat-error
     >
+    <mat-error *ngIf="isPallette "
+    >max. 1000kg</mat-error
+  >
+
   </mat-form-field>
   <mat-form-field appearance="fill" class="short">
-    <mat-label>długość</mat-label>
+    <mat-label>szerokość</mat-label>
     <input
       matInput
       type="number"
@@ -591,12 +595,12 @@
       class="right-align number"
     />
     <span *ngIf="wiState || form.get('width').value != null" matSuffix>cm</span>
-    <mat-hint *ngIf="wiState" align="end">max {{ wMax }}cm</mat-hint>
-    <mat-error *ngIf="form.get('width').invalid && form.get('width').touched"
+    <mat-hint *ngIf="!isPallette && wiState" align="end">max {{ wMax }}cm</mat-hint>
+    <mat-error *ngIf="!isPallette && form.get('width').invalid && form.get('width').touched"
       >max. {{ wMax }}cm</mat-error>
   </mat-form-field>
   <mat-form-field appearance="fill" class="short">
-    <mat-label>szerokość</mat-label>
+    <mat-label>długość</mat-label>
     <input
       matInput
       type="number"
@@ -608,10 +612,8 @@
       class="right-align number"
     />
     <span *ngIf="lState || form.get('length').value != null" matSuffix>cm</span>
-    <mat-hint *ngIf="lState" align="end">max {{ lMax }}cm</mat-hint>
-    <mat-error *ngIf="(form.get('length').invalid && form.get('length').touched)"
-      >max. {{ lMax }}cm</mat-error>
-    <mat-error *ngIf="tt"
+    <mat-hint *ngIf="!isPallette && lState" align="end">max {{ lMax }}cm</mat-hint>
+    <mat-error *ngIf="!isPallette && (form.get('length').invalid && form.get('length').touched)"
       >max. {{ lMax }}cm</mat-error>
   </mat-form-field>
   <mat-form-field appearance="fill" class="short">
@@ -627,8 +629,8 @@
       class="right-align number"
     />
     <span *ngIf="hState || form.get('height').value != null" matSuffix>cm</span>
-    <mat-hint *ngIf="hState" align="end">max {{ hMax }}cm</mat-hint>
-    <mat-error *ngIf="form.get('height').invalid && form.get('height').touched"
+    <mat-hint *ngIf="!isPallette && hState" align="end">max {{ hMax }}cm</mat-hint>
+    <mat-error *ngIf="!isPallette && form.get('height').invalid && form.get('height').touched"
       >max. {{ hMax }}cm</mat-error
     >
   </mat-form-field>

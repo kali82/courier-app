@@ -22,6 +22,7 @@ const SERVER_URL = environment.serverUrl;
   styleUrls: ['./consignment-create.component.css'],
 })
 export class ConsignmentCreateComponent implements OnInit, OnDestroy {
+  isPallette = false;
   ivState = false;
   cvState = false;
   cmState = false;
@@ -79,9 +80,9 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
   width;
   length;
   height;
-  wMax: number;
-  lMax: number;
-  hMax: number;
+  wMax: number ;
+  lMax: number ;
+  hMax: number ;
   size;
   MAX_WEIGHT = 31;
   LONG = 120;
@@ -331,26 +332,95 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
         this.lengthControl.disable();
         this.heightControl.setValue(null);
         this.heightControl.disable();
-      } else if (type === 'PACKAGE' || type === 'PALLETTE') {
-        this.wMax = this.LONG;
-        this.lMax = this.LONG;
-        this.hMax = this.LONG;
+        this.isPallette = false;
+      } else if (type === 'PACKAGE') {
+        this.weightControl.enable();
+          this.weightControl.setValidators([
+            Validators.required,
+            Validators.max(this.MAX_WEIGHT),
+          ]);
+          this.setWeightListener();
+        this.isPallette = false;
+        this.widthControl.enable();
+        this.lengthControl.enable();
+        this.heightControl.enable();
+        this.setPackageDimensionsValidators()
+      } else if(type === 'PALLET') {
+        this.isPallette = true;
+        this.setPalletteDimensionsValidators();
+         this.wMax = 99999999;
+         this.lMax = 99999999;
+         this.hMax = 99999999;
+         this.updateDimensionsValidators();
 
         this.weightControl.enable();
         this.weightControl.setValidators([
           Validators.required,
-          Validators.max(this.MAX_WEIGHT),
+          Validators.max(1000),
         ]);
         this.setWeightListener();
-
         this.widthControl.enable();
         this.lengthControl.enable();
         this.heightControl.enable();
-        this.setDimensionsValidators();
+        this.setPalletteDimensionsValidators();
       }
     });
   }
+  setPackageDimensionsValidators() {
+    this.wMax = 300;
+    this.lMax = 300;
+    this.hMax = 300;
+    this.updateDimensionsValidators();
+    this.widthControl.valueChanges.subscribe((width: number) => {
+        this.lMax = 300 - (width + this.heightControl.value);
+        this.hMax = 300 - (width + this.lengthControl.value);
+        this.wMax = 300 - (this.heightControl.value + this.lengthControl.value);
 
+      this.updateDimensionsValidators();
+    });
+    this.lengthControl.valueChanges.subscribe((length: number) => {
+        this.wMax = 300 - (length + this.heightControl.value);
+        this.hMax = 300 - (length + this.widthControl.value);
+        this.lMax = 300 - (this.heightControl.value + this.widthControl.value);
+
+      this.updateDimensionsValidators();
+    });
+    this.heightControl.valueChanges.subscribe((height: number) => {
+        this.wMax = 300 - (height + this.lengthControl.value);
+        this.lMax = 300 - (height + this.widthControl.value);
+        this.hMax = 300 - (this.lengthControl.value + this.widthControl.value);
+
+      this.updateDimensionsValidators();
+    });
+
+  }
+  setPalletteDimensionsValidators() {
+    this.lMax = 999999999999;
+    this.wMax = 999999999999;
+    this.hMax = 999999999999;
+    this.updateDimensionsValidators();
+    this.widthControl.valueChanges.subscribe((width: number) => {
+        this.lMax = 999999999999;
+        this.wMax = 999999999999;
+        this.hMax = 999999999999;
+      this.updateDimensionsValidators();
+    });
+    this.lengthControl.valueChanges.subscribe((length: number) => {
+        this.wMax = 999999999999
+        this.hMax = 999999999999
+        this.lMax = 999999999999
+
+      this.updateDimensionsValidators();
+    });
+    this.heightControl.valueChanges.subscribe((height: number) => {
+        this.wMax = 999999999999
+        this.lMax = 999999999999
+        this.hMax = 999999999999
+
+      this.updateDimensionsValidators();
+    });
+
+  }
   setDimensionsValidators() {
     this.widthControl.valueChanges.subscribe((width: number) => {
       if (width > this.SHORT) {
@@ -396,13 +466,13 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
       this.heightControl = this.form.get('height');
       let dupa = length*this.height*this.width;
       if(dupa> 300) {
-        this.form.get('length').setErrors({ 'invalid': true });
-        //this.form.get('length').setErrors({ serverError: { message: 'Show server error :)' } });
-        console.log(this.form.get('length').invalid);
-        this.tt = true;
-        console.log('tt ' + this.tt);
-        //this.updateSummedDimensionsValidators()
-        console.log(dupa)
+        // this.form.get('length').setErrors({ 'invalid': true });
+        // //this.form.get('length').setErrors({ serverError: { message: 'Show server error :)' } });
+        // console.log(this.form.get('length').invalid);
+        // this.tt = true;
+        // console.log('tt ' + this.tt);
+        // //this.updateSummedDimensionsValidators()
+        // console.log(dupa)
       }else if (length > this.SHORT) {
         if (
           this.widthControl.value <= this.SHORT &&
@@ -436,7 +506,7 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
           this.hMax = this.LONG;
         }
       }
-      //this.updateDimensionsValidators();
+      this.updateDimensionsValidators();
     });
 
     this.heightControl.valueChanges.subscribe((height: number) => {
