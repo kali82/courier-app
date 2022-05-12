@@ -334,6 +334,13 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
         this.heightControl.disable();
         this.isPallette = false;
       } else if (type === 'PACKAGE') {
+        this.setPackageDimensionsValidators()
+        this.updateDimensionsValidators();
+
+        this.wMax = 300;
+        this.lMax = 300;
+        this.hMax = 300;
+        this.updateDimensionsValidators();
         this.weightControl.enable();
           this.weightControl.setValidators([
             Validators.required,
@@ -345,12 +352,14 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
         this.lengthControl.enable();
         this.heightControl.enable();
         this.setPackageDimensionsValidators()
+        //this.setDimensionsValidators();
       } else if(type === 'PALLET') {
         this.isPallette = true;
         this.setPalletteDimensionsValidators();
-         this.wMax = 99999999;
-         this.lMax = 99999999;
-         this.hMax = 99999999;
+
+         this.wMax = 10000;
+         this.lMax = 10000;
+         this.hMax = 10000;
          this.updateDimensionsValidators();
 
         this.weightControl.enable();
@@ -395,10 +404,6 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
 
   }
   setPalletteDimensionsValidators() {
-    this.lMax = 999999999999;
-    this.wMax = 999999999999;
-    this.hMax = 999999999999;
-    this.updateDimensionsValidators();
     this.widthControl.valueChanges.subscribe((width: number) => {
         this.lMax = 999999999999;
         this.wMax = 999999999999;
