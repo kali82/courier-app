@@ -764,8 +764,7 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
     this.consignmentsService.createConsignment(consignment).then(response => {
       this.isLoading = false;
       if (response.status === 400) {
-        console.log(consignment);
-        this.toastService.showToast('Coś poszło nie tak   ; /');
+        this.toastService.showToast(response.error.message);
       } else {
         this.form.reset();
         this.authService.getUser(login).then(data => {
@@ -785,7 +784,6 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
         let consignmentId = response.consignmentId;
         this.toastService.showToast(response.message);
         this.consignmentsService.getConsignment(consignmentId).then(response => {
-          console.log(SERVER_URL + response.labelPath);
           let snackBar = this.showSnackbar("Otwórz list przewozowy", 'Zobacz', '50000');
           snackBar.onAction().subscribe(() => { 
             // let blankWindow = window.open(SERVER_URL + response.letterPath, '');
