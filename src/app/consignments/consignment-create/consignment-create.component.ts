@@ -13,6 +13,7 @@ import { ReceiverAddress } from '../model/receiver-address.model';
 import { Piece } from '../model/piece.model';
 import { environment } from 'src/environments/environment';
 import { MatSnackBar } from "@angular/material/snack-bar";
+import { ConsignmentsModule } from '../consignments.module';
 
 const SERVER_URL = environment.serverUrl;
 
@@ -61,7 +62,13 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
   today = new Date();
   tomorrow = new Date(this.today.setDate(this.today.getDate() + 1));
   in3days = new Date(this.today.setDate(this.today.getDate() + 2));
+  in2days = new Date(this.today.setDate(this.today.getDate() + 1));
   minDate = new Date(
+    this.tomorrow.getFullYear(),
+    this.tomorrow.getMonth(),
+    this.tomorrow.getDate()
+  );
+  fitDate = new Date(
     this.tomorrow.getFullYear(),
     this.tomorrow.getMonth(),
     this.tomorrow.getDate()
@@ -71,6 +78,7 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
     this.in3days.getMonth(),
     this.in3days.getDate()
   );
+  
   private authStatusSub: Subscription;
   weightControl;
   widthControl;
@@ -100,9 +108,29 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
     private toastService: ToastService,
     private snackBar: MatSnackBar
   ) {}
+  isFriday(date = new Date()) {
+    return date.getDay() === 5;
+  }
+  isSaturday(date = new Date()) {
 
+    return date.getDay() === 6;
+  }
 
   ngOnInit() {
+    if(this.isSaturday()){
+      this.fitDate = new Date(
+        this.fitDate.getFullYear(),
+        this.fitDate.getMonth(),
+        this.fitDate.getDate() +1
+      );
+    }
+    if(this.isFriday()){
+      this.fitDate = new Date(
+        this.fitDate.getFullYear(),
+        this.fitDate.getMonth(),
+        this.fitDate.getDate() +2
+      );
+    }
     let login = this.authService.getLogin();
     this.authService.getUser(login).then(data => {
       this.showForm = true;
@@ -169,7 +197,7 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
       payerType: new FormControl('SHIPPER', {
         validators: [Validators.required],
       }),
-      shipmentDate: new FormControl(this.minDate, {
+      shipmentDate: new FormControl(this.fitDate, {
         validators: [Validators.required],
       }),
       shipperName: new FormControl(data.user.firstName, {
@@ -469,16 +497,17 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
       this.widthControl = this.form.get('width');
       this.lengthControl = this.form.get('length');
       this.heightControl = this.form.get('height');
-      let dupa = length*this.height*this.width;
-      if(dupa> 300) {
-        // this.form.get('length').setErrors({ 'invalid': true });
-        // //this.form.get('length').setErrors({ serverError: { message: 'Show server error :)' } });
-        // console.log(this.form.get('length').invalid);
-        // this.tt = true;
-        // console.log('tt ' + this.tt);
-        // //this.updateSummedDimensionsValidators()
-        // console.log(dupa)
-      }else if (length > this.SHORT) {
+      // let dupa = length*this.height*this.width;
+      // if(dupa> 300) {
+      //   // this.form.get('length').setErrors({ 'invalid': true });
+      //   // //this.form.get('length').setErrors({ serverError: { message: 'Show server error :)' } });
+      //   // console.log(this.form.get('length').invalid);
+      //   // this.tt = true;
+      //   // console.log('tt ' + this.tt);
+      //   // //this.updateSummedDimensionsValidators()
+      //   // console.log(dupa)
+      // }else 
+      if (length > this.SHORT) {
         if (
           this.widthControl.value <= this.SHORT &&
           this.heightControl.value <= this.SHORT
