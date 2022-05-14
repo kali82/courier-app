@@ -30,6 +30,11 @@ const routes: Routes = [
     canActivate: [AuthGuard],
   },
   {
+    path: 'createConsignments/:similarId',
+    component: ConsignmentCreateComponent,
+    canActivate: [AuthGuard],
+  },
+  {
     path: 'createConsignments',
     component: ConsignmentCreateComponent,
     canActivate: [AuthGuard],

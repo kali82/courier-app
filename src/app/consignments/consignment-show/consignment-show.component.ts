@@ -71,7 +71,9 @@ export class ConsignmentShowComponent implements OnInit, OnDestroy {
       error => {}
     );
   }
-
+  showSimilarForm(shipmentId: string) {
+    this.router.navigate(['/createConsignments/'+ shipmentId]);
+  }
   formatDate(date: Date): string {
     const day = date.getDate();
     const month = date.getMonth() + 1;

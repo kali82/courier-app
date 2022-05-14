@@ -12,6 +12,7 @@ import { AuthService } from '../../auth/auth.service';
 import { ConsignmentsService } from '../consignments.service';
 import { Consignment } from '../model/consignment.model';
 import { environment } from '../../../environments/environment';
+import { ConsignmentCreateComponent } from '../consignment-create/consignment-create.component';
 
 const SERVER_URL = environment.serverUrl;
 
@@ -21,6 +22,7 @@ const SERVER_URL = environment.serverUrl;
   styleUrls: ['./consignment-list.component.css'],
 })
 export class ConsignmentListComponent implements OnInit, OnDestroy {
+  // @ViewChild(ConsignmentCreateComponent) createComponent;
   private authStatusSub: Subscription;
   isAuthenticated = false;
   isAdmin = false;
@@ -39,6 +41,7 @@ export class ConsignmentListComponent implements OnInit, OnDestroy {
   ];
   detailColumns = this.displayedColumns.length - 1;
   consignments;
+  similarData;
   dataSource: any;
   selection = new SelectionModel<Consignment>(true, []);
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -61,7 +64,9 @@ export class ConsignmentListComponent implements OnInit, OnDestroy {
       });
     this.listConsignments();
   }
-
+  // ngAfterViewInit() {
+  //   this.createComp = this.createComponent;
+  // }
   listConsignments() {
     this.consignmentsService.listConsignments().then(response => {
       this.isLoading = false;
@@ -91,7 +96,9 @@ export class ConsignmentListComponent implements OnInit, OnDestroy {
   showDetails(shipmentId: string) {
     this.router.navigate(['./consignments/' + shipmentId]);
   }
-
+  showSimilarForm(shipmentId: string) {
+    this.router.navigate(['/createConsignments/'+ shipmentId]);
+  }
   deleteSelected() {
     let selectedConsignments = [];
     let userNames = [];

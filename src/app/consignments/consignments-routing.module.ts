@@ -6,7 +6,8 @@ import { ConsignmentShowComponent } from './consignment-show/consignment-show.co
 
 const routes: Routes = [
   { path: '', component: ConsignmentListComponent },
-  { path: 'create', component: ConsignmentCreateComponent },
+  { path: 'createConsignments/:similarId', component: ConsignmentCreateComponent },
+  { path: 'createConsignments/', component: ConsignmentCreateComponent },
   { path: ':consignmentId', component: ConsignmentShowComponent },
 ];
 

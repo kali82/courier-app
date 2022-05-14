@@ -35,7 +35,7 @@
     mat-raised-button 
     color="accent" 
     class="create-button"
-    routerLink="create">
+    routerLink="/createConsignments">
     
     <i class="material-icons">
       add_circle
@@ -146,9 +146,9 @@
             color="primary"
             matTooltip="utwórz podobną"
             matTooltipPosition="above"
-            (click)="$event.stopPropagation()"
-          >
-            <mat-icon>create</mat-icon>
+            (click)="showSimilarForm(element.consignmentId); $event.stopPropagation()"
+          > +
+            <mat-icon>file_copy</mat-icon>
           </button>
           <button
             class="edit-button"

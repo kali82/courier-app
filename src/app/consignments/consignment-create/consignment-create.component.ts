@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { AuthService } from '../../auth/auth.service';
@@ -14,6 +14,8 @@ import { Piece } from '../model/piece.model';
 import { environment } from 'src/environments/environment';
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { ConsignmentsModule } from '../consignments.module';
+import { DateAdapter } from '@angular/material/core';
+import { ConsignmentListComponent } from '../consignment-list/consignment-list.component';
 
 const SERVER_URL = environment.serverUrl;
 
@@ -23,6 +25,8 @@ const SERVER_URL = environment.serverUrl;
   styleUrls: ['./consignment-create.component.css'],
 })
 export class ConsignmentCreateComponent implements OnInit, OnDestroy {
+  @ViewChild(ConsignmentListComponent) listComponent;
+  similarData;
   isPallette = false;
   ivState = false;
   cvState = false;
@@ -100,14 +104,17 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
   HEAVY = 10.1;
   LIGHT = 1.1;
   showForm;
+  globalSimilarId;
 
   constructor(
     public consignmentsService: ConsignmentsService,
     private authService: AuthService,
     private router: Router,
+    public route: ActivatedRoute,
     private toastService: ToastService,
-    private snackBar: MatSnackBar
-  ) {}
+    private snackBar: MatSnackBar,
+    private dateAdapter: DateAdapter<Date>
+  ) { this.dateAdapter.setLocale('pl-PL');} //dd/MM/yyyy
   isFriday(date = new Date()) {
     return date.getDay() === 5;
   }
@@ -117,6 +124,7 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    let similar;
     if(this.isSaturday()){
       this.fitDate = new Date(
         this.fitDate.getFullYear(),
@@ -132,21 +140,50 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
       );
     }
     let login = this.authService.getLogin();
-    this.authService.getUser(login).then(data => {
-      this.showForm = true;
-      //this.toastService.showToast(data.message)
-      this.createForm(data);
-      this.setPieceValidators();
-      this.setServiceValidators();
-  
-      this.authStatusSub = this.authService
-        .getAuthStatusListener()
-        .subscribe(authStatus => {
-          this.isLoading = false;
-        });
+    this.route.paramMap.subscribe((paramMap: ParamMap) => {
+      let similarId
+      this.authService.getUser(login).then(data => {
+        if (paramMap.has('similarId')) {
+          similarId = paramMap.get('similarId');
+          this.globalSimilarId = paramMap.get('similarId');
+          this.consignmentsService.getConsignment(similarId).then(
+            similarData => {
+              this.showForm = true;
+              this.createSimilarForm(data, similarData);
+              this.setPieceValidators();
+              this.setServiceValidators();
+          
+              this.authStatusSub = this.authService
+                .getAuthStatusListener()
+                .subscribe(authStatus => {
+                  this.isLoading = false;
+                });
+            },
+            error => {
+            }  
+          );
+        } else {
+          this.showForm = true;
+          this.createForm(data);
+          this.setPieceValidators();
+          this.setServiceValidators();
+    
+           this.authStatusSub = this.authService
+            .getAuthStatusListener()
+            .subscribe(authStatus => {
+              this.isLoading = false;
+            });
+        }
+      }); 
     });
   
   }
+  // ngAfterViewInit() {
+  //   this.similarData = this.listComponent.similarData;
+  //   console.log(this.similarData)
+  //   console.log('XD')
+
+  // }
 
   showSnackbar(content, action, duration) {
     return this.snackBar.open(content, action, {
@@ -256,7 +293,7 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
           Validators.maxLength(60),
         ],
       }),
-      receiverPostalCode: new FormControl(null, {
+      receiverPostalCode: new FormControl(null,{
         validators: [
           Validators.required,
           Validators.pattern('[0-9]{2}-[0-9]{3}'),
@@ -291,6 +328,7 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
       receiverContactEmail: new FormControl(null, {
         validators: [Validators.email, Validators.maxLength(60)],
       }),
+      
       type: new FormControl(`ENVELOPE`, { validators: [Validators.required] }),
       weight: new FormControl({ value: null, disabled: true }),
       width: new FormControl({ value: null, disabled: true }),
@@ -312,7 +350,127 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
       insuranceValue: new FormControl({ value: null, disabled: true }),
     });
   }
-
+  createSimilarForm(data, similarData) {
+    this.form = new FormGroup({
+      payerType: new FormControl('SHIPPER', {
+        validators: [Validators.required],
+      }),
+      shipmentDate: new FormControl(this.fitDate, {
+        validators: [Validators.required],
+      }),
+      shipperName: new FormControl(data.user.firstName, {
+        validators: [
+          Validators.required,
+          Validators.minLength(5),
+          Validators.maxLength(60),
+        ],
+      }),
+      shipperPostalCode: new FormControl('66-001', {
+        validators: [
+          Validators.required,
+          Validators.pattern('[0-9]{2}-[0-9]{3}'),
+        ],
+      }),
+      shipperCity: new FormControl(data.user.city, {
+        validators: [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(17),
+        ],
+      }),
+      shipperStreet: new FormControl(data.user.street, {
+        validators: [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(35),
+        ],
+      }),
+      shipperHouseNumber: new FormControl(data.user.house, {
+        validators: [Validators.required, Validators.maxLength(10)],
+      }),
+      shipperApartmentNumber: new FormControl(data.user.apartment, {
+        validators: [Validators.maxLength(10)],
+      }),
+      shipperContactPerson: new FormControl(data.user.contactPerson, {
+        validators: [Validators.maxLength(60)],
+      }),
+      shipperContactPhone: new FormControl(data.user.phone, {
+        validators: [Validators.maxLength(20)],
+      }),
+      shipperContactEmail: new FormControl(data.user.email, {
+        validators: [Validators.email, Validators.maxLength(60)],
+      }),
+      country: new FormControl('PL', {
+        validators: [
+          Validators.required,
+          Validators.minLength(2),
+          Validators.maxLength(2),
+        ],
+      }),
+      receiverName: new FormControl(similarData.receiver.name, {
+        validators: [
+          Validators.required,
+          Validators.minLength(5),
+          Validators.maxLength(60),
+        ],
+      }),
+      receiverPostalCode: new FormControl(similarData.receiver.postalCode,{
+        validators: [
+          Validators.required,
+          Validators.pattern('[0-9]{2}-[0-9]{3}'),
+        ],
+      }),
+      receiverCity: new FormControl(similarData.receiver.city, {
+        validators: [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(17),
+        ],
+      }),
+      receiverStreet: new FormControl(similarData.receiver.street, {
+        validators: [
+          Validators.required,
+          Validators.minLength(3),
+          Validators.maxLength(35),
+        ],
+      }),
+      receiverHouseNumber: new FormControl(similarData.receiver.houseNumber, {
+        validators: [Validators.required, Validators.maxLength(10)],
+      }),
+      receiverApartmentNumber: new FormControl(similarData.receiver.apartmentNumber, {
+        validators: [Validators.maxLength(10)],
+      }),
+      receiverContactPerson: new FormControl(similarData.receiver.contactPerson, {
+        validators: [Validators.maxLength(60)],
+      }),
+      receiverContactPhone: new FormControl(similarData.receiver.contactPhone, {
+        validators: [Validators.maxLength(20)],
+      }),
+      receiverContactEmail: new FormControl(similarData.receiver.contactEmail, {
+        validators: [Validators.email, Validators.maxLength(60)],
+      }),
+      
+      type: new FormControl(similarData.piece.type, { validators: [Validators.required] }),
+      weight: new FormControl({ value: similarData.piece.weight, disabled: false }),
+      width: new FormControl({ value: similarData.piece.width, disabled: false }),
+      length: new FormControl({ value: similarData.piece.length, disabled: false }),
+      height: new FormControl({ value: similarData.piece.height, disabled: false }),
+      quantity: new FormControl(similarData.piece.quantity, {
+        validators: [Validators.required, Validators.min(1)],
+      }),
+      nonStandard: new FormControl(similarData.piece.nonStandard),
+      content: new FormControl(similarData.content, {
+        validators: [Validators.required, Validators.maxLength(30)],
+      }),
+      comment: new FormControl(similarData.comment, {
+        validators: [Validators.maxLength(100)],
+      }),
+      CoD: new FormControl(similarData.service.CoD),
+      CoDValue: new FormControl({ value: similarData.service.CoDValue, disabled: false }),
+      insurance: new FormControl(similarData.service.insurance),
+      insuranceValue: new FormControl({ value: similarData.service.insuranceValue, disabled: false }),
+    });
+  }
   weekendFilter = (date: Date): boolean => {
     const day = date.getDay();
     const saturday = 6;
@@ -349,7 +507,56 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
     this.widthControl = this.form.get('width');
     this.lengthControl = this.form.get('length');
     this.heightControl = this.form.get('height');
+      if (typeControl.value === 'ENVELOPE') {
+        this.weightControl.setValue(null);
+        this.weightControl.disable();
+        this.widthControl.setValue(null);
+        this.widthControl.disable();
+        this.lengthControl.setValue(null);
+        this.lengthControl.disable();
+        this.heightControl.setValue(null);
+        this.heightControl.disable();
+        this.isPallette = false;
+      } else if (typeControl.value === 'PACKAGE') {
+        this.setPackageDimensionsValidators()
+        this.updateDimensionsValidators();
 
+        this.wMax = 300;
+        this.lMax = 300;
+        this.hMax = 300;
+        this.updateDimensionsValidators();
+        this.weightControl.enable();
+          this.weightControl.setValidators([
+            Validators.required,
+            Validators.max(this.MAX_WEIGHT),
+          ]);
+          this.setWeightListener();
+        this.isPallette = false;
+        this.widthControl.enable();
+        this.lengthControl.enable();
+        this.heightControl.enable();
+        this.setPackageDimensionsValidators()
+        //this.setDimensionsValidators();
+      } else if(typeControl.value === 'PALLET') {
+        this.isPallette = true;
+        this.setPalletteDimensionsValidators();
+
+         this.wMax = 10000;
+         this.lMax = 10000;
+         this.hMax = 10000;
+         this.updateDimensionsValidators();
+
+        this.weightControl.enable();
+        this.weightControl.setValidators([
+          Validators.required,
+          Validators.max(1000),
+        ]);
+        this.setWeightListener();
+        this.widthControl.enable();
+        this.lengthControl.enable();
+        this.heightControl.enable();
+        this.setPalletteDimensionsValidators();
+      }
     typeControl.valueChanges.subscribe((type: string) => {
       if (type === 'ENVELOPE') {
         this.weightControl.setValue(null);
@@ -403,10 +610,17 @@ export class ConsignmentCreateComponent implements OnInit, OnDestroy {
       }
     });
   }
+
   setPackageDimensionsValidators() {
-    this.wMax = 300;
-    this.lMax = 300;
-    this.hMax = 300;
+    if(this.globalSimilarId){
+      this.wMax = this.wMax = 300 - (this.heightControl.value + this.lengthControl.value);      ;
+      this.lMax = 300 - (this.heightControl.value + this.widthControl.value);
+      this.hMax = 300 - (this.lengthControl.value + this.widthControl.value);
+    } else {
+      this.wMax = 300;
+      this.lMax = 300;
+      this.hMax = 300;
+    }
     this.updateDimensionsValidators();
     this.widthControl.valueChanges.subscribe((width: number) => {
         this.lMax = 300 - (width + this.heightControl.value);

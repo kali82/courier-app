@@ -10,6 +10,7 @@ import { CdkDetailRowDirective } from './consignment-list/cdk-detail-row.directi
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { getPolishPaginatorIntl } from './consignment-list/polish-paginator-intl';
 import { ConsignmentShowComponent } from './consignment-show/consignment-show.component';
+import { MAT_DATE_LOCALE } from '@angular/material/core';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { ConsignmentShowComponent } from './consignment-show/consignment-show.co
   ],
   providers: [
     { provide: MatPaginatorIntl, useValue: getPolishPaginatorIntl() },
+    { provide: MAT_DATE_LOCALE, useValue: 'en-GB' }
   ],
 })
 export class ConsignmentsModule {}
