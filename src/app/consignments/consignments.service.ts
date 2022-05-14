@@ -46,7 +46,7 @@ export class ConsignmentsService {
           if (!response.consignments) {
             this.toastService.showToast(response.message);
           }
-          console.log(response)
+          //console.log(response)
           return response;
         },
         error => {
