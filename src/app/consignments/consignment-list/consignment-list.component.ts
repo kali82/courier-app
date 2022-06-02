@@ -75,7 +75,7 @@ export class ConsignmentListComponent implements OnInit, OnDestroy {
       this.dataSource = new MatTableDataSource<any>(this.consignments);
       this.dataSource.paginator = this.paginator;
       const sortState: Sort = {
-        active: 'shipmentDateTime',
+        active: 'consignmentId',
         direction: 'desc',
       };
       this.sort.active = sortState.active;
