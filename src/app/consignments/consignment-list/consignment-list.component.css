@@ -2,7 +2,10 @@
   font-size: 0.8em;
   border-bottom: 2px solid #ffd740;
 }
-
+.datepicker {
+  display: flex;
+  right: 0;
+}
 .element-row {
   min-height: 4em;
   border: none;

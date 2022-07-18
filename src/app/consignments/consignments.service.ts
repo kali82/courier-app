@@ -34,11 +34,14 @@ export class ConsignmentsService {
   }
 
   listConsignments(): Promise<any> {
+    let xd = new Date("23.05.2022, 13:39:26");
+    console.log(xd);
     const userId = this.authService.getUserId();
 
     return this.http
       .post<{ message: string; consignments: [] }>(BACKEND_URL, {
         userId: userId,
+        // date range input !!!
       })
       .toPromise()
       .then(

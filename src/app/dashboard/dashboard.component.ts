@@ -78,6 +78,15 @@ export class DashboardComponent implements OnInit, OnDestroy {
     public consignmentsService: ConsignmentsService,) {}
 
   ngOnInit() {
+     let xd = new Date("23.05.2022, 13:39:26");
+    // console.log(xd);
+    let xd2 = new Date("23-05-2022");
+    let xd3 = new Date("11/21/1999, 16:00:00"); 
+    let text = "23.05.2022, 13:39:26";
+    let xd31  = text.replace(/\./g,'/');
+    console.log(new Date(xd31));
+    console.log(xd31);
+    console.log(xd3);
   
     this.userIsAuthenticated = this.authService.getIsAuth();
     this.isAdmin = this.authService.getIsAdmin();
@@ -93,8 +102,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
    
 
     this.dataSource = new MatTableDataSource<any>(this.setlledConsignmentsList);
-    //this.dataSource2 = new MatTableDataSource<any>(this.notSettledConsignmentsList);
-    //console.log(this.dataSource);
     this.dataSource.paginator = this.paginator;
     const sortState: Sort = {
       active: 'id',
@@ -198,63 +205,41 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.notSettledConsignmentsList = []
     let pdfPrice = 0;
     let isSettle = 0;
-    //console.log(pdfData)
     let indexRazemNetto = this.data[0].indexOf("Razem netto");
     let indexConsignmentId = this.data[0].indexOf("Numer przesyłki");
-   // console.log(this.consignments)
     let consignmentsIds = this.consignments.map(consignment => consignment.consignmentId);
-    // console.log("ARRAY IDIKOW");
-    // console.log(consignmentsIds);
     this.data.forEach((element) => { 
       
     let settledConsignments = consignmentsIds.filter((el: any) => el == element[indexConsignmentId]);
       if(settledConsignments.length>0){
-        //console.log(element[indexRazemNetto])
         this.consignmentsService.getConsignment(element[indexConsignmentId]).then(response => {
           console.log(response);
-          //console.log(response.service.CoDValue+ "  "+ element[indexRazemNetto]);
           if(element[indexRazemNetto] === response.service.CoDValue){
             let pdfPrice2 = 0;
             this.sumOfCoD += response.service.CoDValue;
-            //console.log("TA PRZESYLKA JEST DO ROZLICZENIA : "+ element[indexConsignmentId])
             this.pdfData.forEach((pdfElement) => { 
               if(pdfElement[2] == response.consignmentId){
-                isSettle = 1;
-                pdfPrice2 = pdfElement[4];
-              //let pdfConsignments = consignmentsIds.filter((el: any) =>el == pdfElement[2] && pdfElement[2].length >0 && el.length > 0);
-              console.log('pdfConsignments')
-              console.log(pdfElement)
-            } else {
-              pdfPrice = 0;
-            }
-              // pdfConsignments.forEach(element => {
-              //   if(pdfElement[2] == element[indexConsignmentId]){
-              //     pdfPrice = pdfElement[4];
-              //   }else {
-              //     pdfPrice = 0;
-              //   }
-              // });
+                  isSettle = 1;
+                  pdfPrice2 = pdfElement[4];
+              } else {
+                pdfPrice = 0;
+              }
             });
             if(isSettle){
-
-              let cmt = this.consignmentList.filter(el => el.consignmentId == element[indexConsignmentId])
-              console.log(cmt);
-              console.log("CMT"); 
-            this.setlledConsignmentsList.push(
-              {
-              'id' : element[indexConsignmentId],
-              'kwota_pobrania' : pdfPrice2,
-              'cena_excel': element[indexRazemNetto],
-              'cena_brutto': element[indexRazemNetto]*1.23*1.15,
-              'cena_dhl' : response.service.CoDValue,
-              'suma' : element[indexRazemNetto] < response.service.CoDValue ? pdfPrice2 - element[indexRazemNetto] : pdfPrice2 - response.service.CoDValue ,
-              'user' : response.login,
-              'settled' : cmt[0].settled == true ? 1 : 0
-              }
-            );
+              let cmt = this.consignmentList.filter(el => el.consignmentId == element[indexConsignmentId]); 
+              this.setlledConsignmentsList.push(
+                {
+                'id' : element[indexConsignmentId],
+                'kwota_pobrania' : pdfPrice2,
+                'cena_excel': element[indexRazemNetto],
+                'cena_brutto': element[indexRazemNetto]*1.23*1.15,
+                'cena_dhl' : response.service.CoDValue,
+                'suma' : element[indexRazemNetto] < response.service.CoDValue ? pdfPrice2 - element[indexRazemNetto] : pdfPrice2 - response.service.CoDValue ,
+                'user' : response.login,
+                'settled' : cmt[0].settled == true ? 1 : 0
+                }
+              );
             }
-         
-            //console.log("SUMOFCOD "+ Number(this.sumOfCoD));
           } else {
             let pdfPrice3 = 0;
             this.pdfData.forEach(pdfElement => { 
@@ -262,19 +247,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 isSettle = 1;
                 pdfPrice3 = pdfElement[4];
 
-            } else {
+              } else {
               pdfPrice = 0;
-            }
- 
+              }
             });
             let cmt = this.consignmentList.filter(el => el.consignmentId == element[indexConsignmentId]);
-            console.log(cmt);
-            console.log("CMT"); 
             this.setlledConsignmentsList.push(
                 {'id' : element[indexConsignmentId],
                 'kwota_pobrania' : pdfPrice3,
                 'cena_excel': element[indexRazemNetto], 
-                'cena_brutto': element[indexRazemNetto]*1.23*1.15,
+                'cena_brutto': (element[indexRazemNetto]*1.23*1.15).toFixed(2),
                 'cena_dhl' : response.service.CoDValue,
                 'suma' : element[indexRazemNetto] < response.service.CoDValue ? pdfPrice3 - element[indexRazemNetto] : pdfPrice3 - response.service.CoDValue ,
                 'user' : response.login,
@@ -285,7 +267,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
           }
           this.staticSetlledConsignmentsList = this.setlledConsignmentsList;
           this.refreshTable("");
-          console.log("ALLL DONEEE2")
           this.generated = 1;
         });
       }
