@@ -6,5 +6,5 @@ export const environment = {
   // apiURL: 'api/',
   serverUrl: 'https://murmuring-hollows-26750.herokuapp.com/',
   apiURL: 'https://murmuring-hollows-26750.herokuapp.com/api/',
-  adminId: '5ead7ab5556feb3794d8b0a5',
+  adminId: '62d518821d8ac38b52dccfeb',
 };
